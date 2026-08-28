@@ -4,7 +4,7 @@
     "claim": "Try it with sample data",
     "where": "landing primary action, Demo route, README",
     "test": "npx playwright test --grep @claim:demo-sample",
-    "sandbox": "fresh browser context; open /demo/ and assert the bundled sample is extracted into the reader with the persistent demo banner"
+    "sandbox": "fresh browser context; click the first-screen action once, land on /?demo=1, and assert the bundled sample is extracted with the persistent demo banner and isolated storage"
   },
   {
     "id": "private-local",
@@ -22,7 +22,7 @@
   },
   {
     "id": "resume-place",
-    "claim": "Remembers your place on this device",
+    "claim": "Remembers your reading place on this device",
     "where": "landing facts, README",
     "test": "npx playwright test --grep @claim:resume-place",
     "sandbox": "fresh normal browser context; upload the generated test PDF, move to a block, reload, and resume"
@@ -32,7 +32,7 @@
     "claim": "Use the reader with keyboard controls",
     "where": "README",
     "test": "npx playwright test --grep @claim:keyboard-controls",
-    "sandbox": "fresh browser context; open /demo/, operate block movement and text size with J and ] keys, and assert the visible results"
+    "sandbox": "fresh browser context; open /?demo=1, operate block movement and text size with J and ] keys, and assert the visible results"
   },
   {
     "id": "local-data-control",
@@ -43,7 +43,7 @@
   },
   {
     "id": "stored-data-scope",
-    "claim": "Only extracted text, settings, and reading position are stored; the original PDF and its password are never retained.",
+    "claim": "Only extracted text, settings, and your reading place are stored; the original PDF and its password are never retained.",
     "where": "Manage local data dialog, password dialog, privacy page",
     "test": "npx playwright test --grep @claim:stored-data-scope",
     "sandbox": "fresh browser context; unlock the encrypted fixture, inspect the saved IndexedDB record, and assert its exact fields contain neither PDF bytes nor the entered password"
@@ -67,6 +67,20 @@
     "claim": "Adjust text size, line spacing, word spacing, line width, typeface, and four contrast treatments.",
     "where": "reader setup panel, landing how-it-works, README",
     "test": "npx playwright test --grep @claim:reader-adjustments",
-    "sandbox": "fresh browser context; open /demo/, operate every reading adjustment, and assert computed type, spacing, width, and all four named treatments"
+    "sandbox": "fresh browser context; open /?demo=1, operate every reading adjustment, and assert computed type, spacing, width, and all four named treatments"
+  },
+  {
+    "id": "extraction-boundary",
+    "claim": "Places selectable PDF text in one reading column without changing or certifying the source PDF.",
+    "where": "landing illustration caption, reader confidence details, terms page",
+    "test": "npx playwright test --grep @claim:extraction-boundary",
+    "sandbox": "fresh browser context; hash the bundled source PDF before and after extraction, assert the reading column contains its text, and assert the no-repair/no-certification boundary"
+  },
+  {
+    "id": "extraction-confidence",
+    "claim": "Shows an extraction confidence note and tells readers to check the source PDF when meaning matters.",
+    "where": "landing how-it-works, reader confidence note, README",
+    "test": "npx playwright test --grep @claim:extraction-confidence",
+    "sandbox": "fresh browser context; open /?demo=1, assert the visible confidence estimate and source-check instruction, then expand its extraction notes"
   }
 ]

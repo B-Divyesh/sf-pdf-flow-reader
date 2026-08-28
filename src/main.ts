@@ -1,9 +1,8 @@
 import './style.css';
 import { cancelExtraction, extractPdf, ReaderError } from './pdf';
-import { clearDocuments, deleteDocument, exportLibrary, getRecentDocuments, importLibrary, saveDocument, setDemoStorage } from './db';
+import { clearDocuments, deleteDocument, getRecentDocuments, saveDocument, setDemoStorage } from './db';
 import { defaultSettings, type ReaderSettings, type SavedDocument } from './types';
-
-declare const __APP_VERSION__: string;
+import { bindChrome, focusRouteHeading, sharedDialogs, sharedRegions, siteFooter, siteHeader } from './chrome';
 
 const app = document.querySelector<HTMLElement>('#app')!;
 let current: SavedDocument | undefined;
@@ -30,28 +29,12 @@ const timeAgo = (timestamp: number) => {
 };
 const confidenceLabel = (score: number) => score >= 80 ? 'High confidence' : score >= 55 ? 'Review suggested' : 'Low confidence';
 
-function header() {
-  return `<header class="site-header">
-    <a class="brand" href="/" aria-label="PDF Flow Reader home"><img src="/assets/icon.svg" width="36" height="36" alt=""><span>PDF FLOW READER</span></a>
-    <p class="local-note"><span aria-hidden="true">●</span> Local only</p>
-    <nav class="site-nav" aria-label="Primary"><a href="/demo/">Demo</a><a href="/privacy/">Privacy</a></nav>
-    <div class="header-actions">
-      <button class="text-button" id="shortcut-button" type="button" aria-haspopup="dialog"><kbd>?</kbd> Shortcuts</button>
-      <button class="text-button" id="data-button" type="button" aria-haspopup="dialog">Manage local data</button>
-    </div>
-  </header>`;
-}
-
-function footer() {
-  return `<footer class="site-footer"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><span>No upload. No tracking.</span><span>Built by Param Factory · v${__APP_VERSION__}</span><span class="art-credit">Original AI-generated artwork.</span></footer>`;
-}
-
 function shell(content: string) {
   const demoBanner = demoMode ? `<aside class="demo-banner" aria-label="Demo controls"><strong>Demo — sample data, nothing is saved to your real library.</strong><div><button class="text-button" id="reset-demo" type="button">Reset demo</button><button class="secondary-button" id="start-real" type="button">Start for real</button></div></aside>` : '';
-  app.innerHTML = `${header()}<div id="connection-banner" class="connection-banner" role="status" hidden>You’re offline. The local reader stays available.</div>${demoBanner}${content}${footer()}
-  <div id="live-status" class="sr-only" aria-live="polite"></div>
+  app.innerHTML = `${siteHeader()}<div id="connection-banner" class="connection-banner" role="status" hidden>You’re offline. The local reader stays available.</div>${demoBanner}${content}${siteFooter()}
+  ${sharedRegions()}
   <div id="update-toast" class="toast" role="status" hidden><span>An app update is ready.</span><button type="button" id="reload-button">Reload</button></div>
-  ${dialogs()}`;
+  ${sharedDialogs()}${passwordDialog()}`;
   bindShared();
   updateConnection();
 }
@@ -75,14 +58,14 @@ function homeView(error = '') {
           <p>The sample opens now. Your PDF is processed on this device.</p>
         </div>
         ${error ? `<div class="error-box" role="alert"><strong>Couldn’t open that PDF.</strong><span>${escapeHtml(error)}</span><button class="link-button" type="button" id="retry-button">Try another file</button></div>` : ''}
-        <ul class="trust-list" aria-label="Reader features"><li><strong>01</strong> No upload</li><li><strong>02</strong> Remembers your place</li><li><strong>03</strong> Works offline</li></ul>
+        <ul class="trust-list" aria-label="Reader features"><li><strong>01</strong> No upload</li><li><strong>02</strong> Remembers your reading place</li><li><strong>03</strong> Works offline</li></ul>
       </div>
       <figure class="hero-art">
         <picture><source type="image/avif" srcset="/assets/reflow-gate-720.avif 720w, /assets/reflow-gate-1280.avif 1280w" sizes="(max-width: 900px) 100vw, 48vw"><source type="image/webp" srcset="/assets/reflow-gate-720.webp 720w, /assets/reflow-gate-1280.webp 1280w" sizes="(max-width: 900px) 100vw, 48vw"><img src="/assets/reflow-gate-1280.jpg" srcset="/assets/reflow-gate-720.jpg 720w, /assets/reflow-gate-1280.jpg 1280w" sizes="(max-width: 900px) 100vw, 48vw" width="1280" height="853" fetchpriority="high" alt="Paper fragments feed into a blue mechanical press and emerge as one orderly column of text."></picture>
-        <figcaption><span aria-hidden="true">↳</span> We extract readable text. We never alter or certify the source file.</figcaption>
+        <figcaption><span aria-hidden="true">↳</span> We place extracted text in one reading column. We never alter or certify the source PDF.</figcaption>
       </figure>
     </section>${resume}
-    <section class="how-it-works" aria-labelledby="how-title"><p class="eyebrow">What happens here</p><h2 id="how-title">The document stays yours.</h2><ol><li><span>1</span><h3>Open locally</h3><p>Your browser reads the file. It never travels to a server.</p></li><li><span>2</span><h3>Inspect the flow</h3><p>We show a confidence note because extraction can get reading order wrong.</p></li><li><span>3</span><h3>Read your way</h3><p>Set size, spacing, measure, and contrast. Return at the same paragraph.</p></li></ol></section>
+    <section class="how-it-works" aria-labelledby="how-title"><p class="eyebrow">What happens here</p><h2 id="how-title">How PDF Flow Reader reads your PDF locally</h2><ol><li><span>1</span><h3>Open locally</h3><p>Your browser reads the file. It never travels to a server.</p></li><li><span>2</span><h3>Inspect the flow</h3><p>We show a confidence note. Check the source PDF when meaning matters.</p></li><li><span>3</span><h3>Read your way</h3><p>Set size, spacing, measure, and contrast. Return to the same reading place.</p></li></ol></section>
   </main>`);
   bindHome();
 }
@@ -122,7 +105,7 @@ function readerView(saved: SavedDocument, resumed = false) {
       <div class="position-bar" aria-label="Reading position"><span id="position-text">Page ${saved.blocks[activeBlock]?.page || 1} of ${saved.pageCount}</span><div><button type="button" id="previous-block" aria-label="Previous paragraph"><span aria-hidden="true">Previous ↑</span></button><button type="button" id="next-block" aria-label="Next paragraph"><span aria-hidden="true">Next ↓</span></button></div></div>
     </section>
     <aside class="settings-panel" id="settings-panel" aria-label="Reading setup"><div class="panel-heading"><div><p class="eyebrow">Make it yours</p><h2>Reading setup</h2></div><button class="icon-button panel-close" data-close-panel="settings-panel" aria-label="Close reading setup">${icons.close}</button></div>${settingsControls(saved.settings)}</aside>
-  </main>${resumed ? '<div class="resume-toast" role="status">Restored your last reading position.</div>' : ''}`);
+  </main>${resumed ? '<div class="resume-toast" role="status">Restored your last reading place.</div>' : ''}`);
   bindReader(resumed);
 }
 
@@ -142,43 +125,24 @@ function settingsControls(settings: ReaderSettings) {
   </form>`;
 }
 
-function dialogs() {
-  return `<dialog id="shortcut-dialog" aria-labelledby="shortcut-title"><form method="dialog"><div class="dialog-heading"><h2 id="shortcut-title">Keyboard shortcuts</h2><button class="icon-button" value="close" aria-label="Close shortcuts">${icons.close}</button></div><dl class="shortcut-list"><div><dt><kbd>J</kbd> / <kbd>K</kbd></dt><dd>Next / previous block</dd></div><div><dt><kbd>]</kbd> / <kbd>[</kbd></dt><dd>Increase / decrease text</dd></div><div><dt><kbd>T</kbd></dt><dd>Cycle contrast</dd></div><div><dt><kbd>H</kbd></dt><dd>Open headings</dd></div><div><dt><kbd>Space</kbd></dt><dd>Move down one screen</dd></div></dl></form></dialog>
-  <dialog id="data-dialog" aria-labelledby="data-title"><form method="dialog"><div class="dialog-heading"><h2 id="data-title">Local reading data</h2><button class="icon-button" value="close" aria-label="Close local data">${icons.close}</button></div><p>Extracted text, settings, and reading positions live only in this browser.</p><div class="dialog-actions"><button type="button" class="secondary-button" id="export-button">Export my data</button><button type="button" class="secondary-button" id="import-button">Import data</button><input class="visually-hidden-input" id="import-input" type="file" accept="application/json" aria-label="Import PDF Flow Reader data" tabindex="-1"><button type="button" class="danger-button" id="clear-button">Erase all local data</button></div><p class="dialog-status" id="data-status" role="status"></p></form></dialog>
-  <dialog id="password-dialog" aria-labelledby="password-title"><form id="password-form"><div class="dialog-heading"><h2 id="password-title">Password protected</h2><button class="icon-button" value="cancel" formmethod="dialog" aria-label="Cancel opening PDF">${icons.close}</button></div><p>This PDF needs its open password. The password is used only for this attempt and is never saved.</p><label for="password-input">PDF password</label><input id="password-input" type="password" autocomplete="off" required><p id="password-error" class="field-error" role="alert"></p><div class="dialog-actions"><button type="submit" class="primary-button">Unlock locally</button><button value="cancel" formmethod="dialog" class="secondary-button">Cancel</button></div></form></dialog>`;
+function passwordDialog() {
+  return `<dialog id="password-dialog" aria-labelledby="password-title"><form id="password-form"><div class="dialog-heading"><h2 id="password-title">Password protected</h2><button class="icon-button" value="cancel" formmethod="dialog" aria-label="Cancel opening PDF">${icons.close}</button></div><p>This PDF needs its open password. The password is used only for this attempt and is never saved.</p><label for="password-input">PDF password</label><input id="password-input" type="password" autocomplete="off" required><p id="password-error" class="field-error" role="alert"></p><div class="dialog-actions"><button type="submit" class="primary-button">Unlock locally</button><button value="cancel" formmethod="dialog" class="secondary-button">Cancel</button></div></form></dialog>`;
 }
 
 function bindShared() {
-  const shortcut = document.querySelector<HTMLDialogElement>('#shortcut-dialog')!;
-  const data = document.querySelector<HTMLDialogElement>('#data-dialog')!;
-  document.querySelector('#shortcut-button')?.addEventListener('click', () => shortcut.showModal());
-  document.querySelector('#data-button')?.addEventListener('click', () => data.showModal());
+  bindChrome({
+    onDataChanged: async () => { recent = await getRecentDocuments(); },
+    onDataCleared: () => { recent = []; current = undefined; homeView(); }
+  });
   document.querySelector('#reload-button')?.addEventListener('click', () => location.reload());
   document.querySelector('#reset-demo')?.addEventListener('click', resetDemo);
   document.querySelector('#start-real')?.addEventListener('click', async () => { await clearDocuments(); location.assign('/'); });
-  document.querySelector('#export-button')?.addEventListener('click', async () => {
-    const json = await exportLibrary();
-    const url = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
-    const link = Object.assign(document.createElement('a'), { href: url, download: `pdf-flow-reader-${new Date().toISOString().slice(0, 10)}.json` });
-    link.click(); URL.revokeObjectURL(url); announce('Your local reading data was exported.');
-  });
-  document.querySelector('#import-button')?.addEventListener('click', () => document.querySelector<HTMLInputElement>('#import-input')?.click());
-  document.querySelector<HTMLInputElement>('#import-input')?.addEventListener('change', async (event) => {
-    const file = (event.currentTarget as HTMLInputElement).files?.[0]; if (!file) return;
-    const status = document.querySelector<HTMLElement>('#data-status')!;
-    try { const count = await importLibrary(await file.text()); status.textContent = `Imported ${count} saved ${count === 1 ? 'document' : 'documents'}.`; recent = await getRecentDocuments(); }
-    catch (error) { status.textContent = error instanceof Error ? error.message : 'The import could not be read.'; }
-  });
-  document.querySelector('#clear-button')?.addEventListener('click', async () => {
-    if (!confirm('Erase all saved documents, positions, and reader settings from this browser? This cannot be undone.')) return;
-    await clearDocuments(); recent = []; current = undefined; data.close(); homeView(); announce('All local reading data was erased.');
-  });
 }
 
 function bindHome() {
   const input = document.querySelector<HTMLInputElement>('#pdf-input')!;
   document.querySelector('#choose-pdf')?.addEventListener('click', () => input.click());
-  document.querySelector('#try-demo')?.addEventListener('click', () => location.assign('/demo/'));
+  document.querySelector('#try-demo')?.addEventListener('click', () => location.assign('/?demo=1'));
   input.addEventListener('change', () => input.files?.[0] && openFile(input.files[0]));
   const drop = document.querySelector<HTMLElement>('#drop-zone')!;
   for (const eventName of ['dragenter', 'dragover']) drop.addEventListener(eventName, (event) => { event.preventDefault(); drop.classList.add('is-dragging'); });
@@ -370,10 +334,15 @@ async function boot() {
   try { recent = await getRecentDocuments(); } catch { recent = []; }
   if (demoMode) {
     document.title = 'Demo — PDF Flow Reader';
+    document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.setAttribute('href', 'https://pdf-flow-reader.sociobot.in/demo/');
+    document.querySelector<HTMLMetaElement>('meta[property="og:title"]')?.setAttribute('content', 'Demo — PDF Flow Reader');
+    document.querySelector<HTMLMetaElement>('meta[property="og:url"]')?.setAttribute('content', 'https://pdf-flow-reader.sociobot.in/demo/');
+    document.querySelector<HTMLMetaElement>('meta[name="twitter:title"]')?.setAttribute('content', 'Demo — PDF Flow Reader');
     await resetDemo();
   } else {
     homeView();
   }
+  focusRouteHeading();
   if ('serviceWorker' in navigator) {
     const registration = await navigator.serviceWorker.register('/sw.js');
     if (registration.waiting) document.querySelector<HTMLElement>('#update-toast')!.hidden = false;

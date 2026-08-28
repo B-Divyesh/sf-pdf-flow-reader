@@ -83,6 +83,10 @@ export function isSavedDocument(value: unknown): value is SavedDocument {
 }
 
 export async function getRecentDocuments(): Promise<SavedDocument[]> {
+  if ('databases' in indexedDB) {
+    const databases = await indexedDB.databases();
+    if (!databases.some((database) => database.name === storageDatabaseName())) return [];
+  }
   const items = await transaction<unknown[]>('readonly', (store) => store.getAll());
   const valid = items.filter(isSavedDocument);
   const invalidIds = items

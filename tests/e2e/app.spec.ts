@@ -44,7 +44,7 @@ test('empty state is accessible and fits the viewport', async ({ page }) => {
   expect(consoleErrors).toEqual([]);
 });
 
-test('@claim:resume-place extracts a PDF, adjusts reading, and resumes position', async ({ page }) => {
+test('@claim:resume-place extracts a PDF, adjusts reading, and resumes its reading place', async ({ page }) => {
   await openGeneratedPdf(page);
   await expect(page.getByText(/confidence|Review suggested/).first()).toBeVisible();
   await page.keyboard.press('j');
@@ -57,7 +57,7 @@ test('@claim:resume-place extracts a PDF, adjusts reading, and resumes position'
   await page.reload();
   await expect(page.getByRole('button', { name: /Resume reading/ })).toBeVisible();
   await page.getByRole('button', { name: /Resume reading/ }).click();
-  await expect(page.getByText('Restored your last reading position.')).toBeVisible();
+  await expect(page.getByText('Restored your last reading place.')).toBeVisible();
   await expect(page.locator('#reading-plane')).toHaveCSS('font-size', '24px');
 });
 
@@ -68,7 +68,7 @@ test('shows a useful invalid-file error', async ({ page }) => {
 });
 
 test('@claim:offline-reload app shell reloads offline after first visit', async ({ page, context }) => {
-  await page.goto('/demo/');
+  await page.goto('/?demo=1');
   await expect(page.getByRole('article', { name: 'Reflowed document' })).toContainText('QUIET READING ROUTINE', { timeout: 15_000 });
   await page.evaluate(() => navigator.serviceWorker.ready.then(() => undefined));
   await page.reload();
@@ -83,7 +83,9 @@ test('@claim:offline-reload app shell reloads offline after first visit', async 
 });
 
 test('@claim:demo-sample opens the bundled sample in an isolated demo library', async ({ page }) => {
-  await page.goto('/demo/');
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Try it with sample data' }).click();
+  await expect(page).toHaveURL(/\?demo=1$/);
   await expect(page.getByLabel('Demo controls')).toContainText('Demo — sample data');
   await expect(page.getByRole('article', { name: 'Reflowed document' })).toContainText('QUIET READING ROUTINE', { timeout: 15_000 });
   await expect(page.getByRole('button', { name: 'Reset demo' })).toBeVisible();
@@ -98,10 +100,35 @@ test('@claim:demo-sample opens the bundled sample in an isolated demo library', 
   await expect(page.getByRole('button', { name: 'Try it with sample data' })).toBeVisible();
 });
 
+test('@claim:extraction-boundary creates a reading column without changing or certifying the source PDF', async ({ page }) => {
+  const sourceHash = async () => page.evaluate(async () => {
+    const bytes = await (await fetch('/samples/reading-routine.pdf')).arrayBuffer();
+    const digest = await crypto.subtle.digest('SHA-256', bytes);
+    return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, '0')).join('');
+  });
+  await page.goto('/?demo=1');
+  const before = await sourceHash();
+  const readingColumn = page.getByRole('article', { name: 'Reflowed document' });
+  await expect(readingColumn).toContainText('QUIET READING ROUTINE', { timeout: 15_000 });
+  await page.locator('#confidence-toggle').click();
+  await expect(page.locator('#confidence-details')).toContainText('does not repair or certify the PDF');
+  expect(await sourceHash()).toBe(before);
+});
+
+test('@claim:extraction-confidence shows the estimate, source check, and extraction notes', async ({ page }) => {
+  await page.goto('/?demo=1');
+  const note = page.getByRole('note');
+  await expect(note).toContainText('Extraction estimate', { timeout: 15_000 });
+  await expect(note).toContainText('check against the source when meaning matters');
+  await note.getByRole('button').click();
+  await expect(page.locator('#confidence-details')).toBeVisible();
+  await expect(page.locator('#confidence-details li')).not.toHaveCount(0);
+});
+
 test('@claim:private-local keeps the demo flow on the product origin', async ({ page }) => {
   const requests: { url: string; method: string; postData: string | null; resourceType: string }[] = [];
   page.on('request', (request) => requests.push({ url: request.url(), method: request.method(), postData: request.postData(), resourceType: request.resourceType() }));
-  await page.goto('/demo/');
+  await page.goto('/?demo=1');
   await expect(page.getByRole('article', { name: 'Reflowed document' })).toBeVisible({ timeout: 15_000 });
   const origin = new URL(page.url()).origin;
   expect(requests.length).toBeGreaterThan(0);
@@ -120,7 +147,7 @@ test('@claim:private-local keeps the demo flow on the product origin', async ({ 
 });
 
 test('@claim:keyboard-controls changes the sample reader with keys', async ({ page }) => {
-  await page.goto('/demo/');
+  await page.goto('/?demo=1');
   await expect(page.getByRole('article', { name: 'Reflowed document' })).toBeVisible({ timeout: 15_000 });
   for (let repetition = 0; repetition < 5; repetition += 1) {
     await page.keyboard.press('j');
@@ -209,6 +236,9 @@ test('rejects malformed branded imports and recovers from invalid legacy records
   await page.evaluate(async () => new Promise<void>((resolve, reject) => {
     const request = indexedDB.open('pdf-flow-reader');
     request.onerror = () => reject(request.error);
+    request.onupgradeneeded = () => {
+      if (!request.result.objectStoreNames.contains('documents')) request.result.createObjectStore('documents', { keyPath: 'id' });
+    };
     request.onsuccess = () => {
       const transaction = request.result.transaction('documents', 'readwrite');
       transaction.objectStore('documents').put({ id: 'legacy-broken-record', blocks: [], settings: {} });
@@ -226,7 +256,7 @@ test('Open another clears reader shortcuts and produces no page errors', async (
   const errors: string[] = [];
   page.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()); });
   page.on('pageerror', (error) => errors.push(error.message));
-  await page.goto('/demo/');
+  await page.goto('/?demo=1');
   await expect(page.getByRole('article', { name: 'Reflowed document' })).toBeVisible({ timeout: 15_000 });
   await page.getByRole('button', { name: 'Open another' }).click();
   await expect(page.getByRole('heading', { level: 1, name: /Read long PDFs/ })).toBeVisible();
@@ -292,7 +322,7 @@ test('@claim:copy-restrictions refuses a PDF whose owner disabled text copying',
 });
 
 test('@claim:reader-adjustments applies every reading control and contrast treatment', async ({ page }, testInfo) => {
-  await page.goto('/demo/');
+  await page.goto('/?demo=1');
   await expect(page.getByRole('article', { name: 'Reflowed document' })).toBeVisible({ timeout: 15_000 });
   if (testInfo.project.name === 'mobile') await page.getByRole('button', { name: 'Reading setup' }).click();
   await page.getByRole('button', { name: 'Increase text size' }).click();
@@ -317,7 +347,7 @@ test('@claim:reader-adjustments applies every reading control and contrast treat
 
 test('mobile drawers are inert when closed and return focus to their opener', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'mobile', '390px regression');
-  await page.goto('/demo/');
+  await page.goto('/?demo=1');
   await expect(page.getByRole('article', { name: 'Reflowed document' })).toBeVisible({ timeout: 15_000 });
   for (const panel of ['#outline-panel', '#settings-panel']) {
     await expect(page.locator(panel)).toHaveAttribute('inert', '');
@@ -344,7 +374,7 @@ test('mobile drawers are inert when closed and return focus to their opener', as
 
 test('mobile reading controls stay visible and all reported targets meet 44px', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'mobile', '390px regression');
-  await page.goto('/demo/');
+  await page.goto('/?demo=1');
   await expect(page.getByRole('article', { name: 'Reflowed document' })).toBeVisible({ timeout: 15_000 });
   await expect(page.locator('#previous-block')).toContainText('Previous');
   await expect(page.locator('#next-block')).toContainText('Next');
@@ -372,7 +402,7 @@ test('mobile reading controls stay visible and all reported targets meet 44px', 
 });
 
 test('reader focus and dialogs expose visible accessible state', async ({ page }) => {
-  await page.goto('/demo/');
+  await page.goto('/?demo=1');
   await expect(page.getByRole('article', { name: 'Reflowed document' })).toBeVisible({ timeout: 15_000 });
   for (const [id, name] of [['shortcut-dialog', 'Keyboard shortcuts'], ['data-dialog', 'Local reading data'], ['password-dialog', 'Password protected']]) {
     await page.locator(`#${id}`).evaluate((dialog: HTMLDialogElement) => dialog.showModal());
@@ -394,11 +424,59 @@ test('legal, not-found, and every reader contrast treatment pass serious accessi
     const results = await new AxeBuilder({ page }).analyze();
     expect(results.violations.filter((item) => ['serious', 'critical'].includes(item.impact || '')), route).toEqual([]);
   }
-  await page.goto('/demo/');
+  await page.goto('/?demo=1');
   await expect(page.getByRole('article', { name: 'Reflowed document' })).toBeVisible({ timeout: 15_000 });
   for (const theme of ['cream', 'white', 'dark', 'contrast']) {
     await page.locator('.reader-shell').evaluate((element, value) => { (element as HTMLElement).dataset.theme = value; }, theme);
     const results = await new AxeBuilder({ page }).analyze();
     expect(results.violations.filter((item) => ['serious', 'critical'].includes(item.impact || '')), theme).toEqual([]);
+  }
+});
+
+test('route links focus and announce each new h1, including Back and the 404 route', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('link', { name: 'Privacy', exact: true }).first().click();
+  await expect(page).toHaveURL(/\/privacy\/$/);
+  await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
+  await expect(page.locator('#route-status')).toContainText('Opened Privacy, kept local.');
+
+  await page.getByRole('link', { name: 'Terms', exact: true }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
+  await expect(page.locator('#route-status')).toContainText('Opened A reading aid, not a repair tool.');
+
+  await page.goBack();
+  await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
+  await page.getByRole('link', { name: 'PDF Flow Reader home' }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
+  await page.getByRole('link', { name: 'Demo', exact: true }).click();
+  await expect(page).toHaveURL(/\?demo=1$/);
+  await expect(page.getByRole('heading', { level: 1 })).toBeFocused({ timeout: 15_000 });
+  await expect(page.locator('#route-status')).toContainText('Opened Reading reading-routine');
+
+  await page.evaluate(() => sessionStorage.setItem('pdf-flow-reader:route-focus', '1'));
+  await page.goto('/404/');
+  await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
+  await expect(page.locator('#route-status')).toContainText('Opened This page is not in the reader.');
+});
+
+test('every document route uses the same header, footer, controls, and canonical metadata', async ({ page }) => {
+  const routes = [
+    { route: '/', title: 'PDF Flow Reader — read PDFs in a steady column', canonical: 'https://pdf-flow-reader.sociobot.in/' },
+    { route: '/?demo=1', title: 'Demo — PDF Flow Reader', canonical: 'https://pdf-flow-reader.sociobot.in/demo/' },
+    { route: '/privacy/', title: 'Privacy — PDF Flow Reader', canonical: 'https://pdf-flow-reader.sociobot.in/privacy/' },
+    { route: '/terms/', title: 'Terms — PDF Flow Reader', canonical: 'https://pdf-flow-reader.sociobot.in/terms/' },
+    { route: '/404/', title: 'Page not found — PDF Flow Reader', canonical: 'https://pdf-flow-reader.sociobot.in/404/' }
+  ];
+  for (const { route, title, canonical } of routes) {
+    await page.goto(route);
+    await expect(page).toHaveTitle(title);
+    await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
+    await expect(page.locator('header')).toHaveCount(1);
+    await expect(page.locator('footer')).toHaveCount(1);
+    await expect(page.getByRole('button', { name: 'Show keyboard shortcuts' })).toHaveCount(1);
+    await expect(page.getByRole('button', { name: 'Manage local data' })).toHaveCount(1);
+    await expect(page.locator('footer')).toContainText('Read long PDFs in a steady column.');
+    await expect(page.locator('footer')).toContainText('Original AI-generated artwork.');
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', canonical);
   }
 });

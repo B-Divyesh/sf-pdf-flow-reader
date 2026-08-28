@@ -51,6 +51,7 @@ describe('release configuration regressions', () => {
       expect(html).toContain('property="og:image"');
       expect(html).toContain('name="twitter:card" content="summary_large_image"');
       expect(html).toContain('name="twitter:image"');
+      expect(html).toContain('rel="canonical"');
     }
     const metadata = await sharp('public/assets/social-card.jpg').metadata();
     expect(metadata.width).toBe(1200);
@@ -59,11 +60,16 @@ describe('release configuration regressions', () => {
 
   test('keeps the designed 404 inside the standard site shell', async () => {
     const html = await readFile('404/index.html', 'utf8');
-    expect((html.match(/<header\b/g) || [])).toHaveLength(1);
-    expect((html.match(/<main\b/g) || [])).toHaveLength(1);
-    expect((html.match(/<h1\b/g) || [])).toHaveLength(1);
-    expect((html.match(/<footer\b/g) || [])).toHaveLength(1);
-    expect(html).toContain('aria-label="Primary"');
-    expect(html).toContain('Built by Param Factory');
+    const route = await readFile('src/not-found.ts', 'utf8');
+    const chrome = await readFile('src/chrome.ts', 'utf8');
+    expect(html).toContain('id="not-found-root"');
+    expect(html).toContain('rel="canonical" href="https://pdf-flow-reader.sociobot.in/404/"');
+    expect(route).toContain('siteHeader()');
+    expect(route).toContain('siteFooter()');
+    expect(route).toContain('<main id="main" class="not-found">');
+    expect(route).toContain('<h1>This page is not in the reader.</h1>');
+    expect(chrome).toContain('aria-label="Primary"');
+    expect(chrome).toContain('Show keyboard shortcuts');
+    expect(chrome).toContain('Built by Param Factory');
   });
 });
