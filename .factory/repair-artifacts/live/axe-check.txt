@@ -1,0 +1,8 @@
+/ serious-critical=0
+/privacy/ serious-critical=0
+/terms/ serious-critical=0
+/404/ serious-critical=0
+/demo/ cream serious-critical=0
+/demo/ white serious-critical=0
+/demo/ dark serious-critical=0
+/demo/ contrast serious-critical=0

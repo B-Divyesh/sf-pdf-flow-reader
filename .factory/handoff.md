@@ -1,6 +1,6 @@
 # PDF Flow Reader — repair handoff
 
-## Release status: READY FOR DEPLOY
+## Release status: DEPLOYED
 
 Repair work order: `pdf-flow-reader-repair-2`. Base verifier report commit: `9abc7aab239c1df55273d9e04aef65a1c8f12333`. Failed candidate: `baa6d122b537d1e0f84c0e2d5b064a7d703782f1`.
 
@@ -43,7 +43,7 @@ while IFS=$'\t' read -r id command; do bash -lc "$command"; done < <(node -e "fo
 - Playwright Axe: no serious or critical findings on home, reader, all four contrast modes, Privacy, Terms, or 404.
 - Keyboard: J/K, brackets, T, H, Escape, Space, Shift+Space, drawer focus restoration, and closed-drawer Tab exclusion PASS.
 - Product flows: sample, normal extraction, encrypted/wrong-password path, restricted PDF, image-only PDF, malformed PDF, local resume, adjustments, export/import/erase, privacy observation, and recovery PASS.
-- Offline: a fresh service-worker-controlled demo reloads offline with its sample and local state. Cache versioning/update behavior is unchanged from the independently passing candidate and will be rechecked across deployment.
+- Offline/update: a fresh service-worker-controlled demo reloads offline with its sample and local state. The live cache changed from `pdf-flow-reader-5b5dfa03d15e` to `pdf-flow-reader-a271f7ea36a4`; the in-app update signal appeared, control remained active, and the updated demo reloaded offline.
 - Local artifacts: `.factory/repair-artifacts/local/` contains desktop/mobile screenshots, `verify.json`, Lighthouse JSON, and the local `dist` SHA-256 manifest.
 
 ## Known limits
@@ -55,4 +55,14 @@ while IFS=$'\t' read -r id command; do bash -lc "$command"; done < <(node -e "fo
 
 ## Deployment
 
-The production target is Azure Static Web App `sf-pdf-flow-reader` at `https://pdf-flow-reader.sociobot.in/`. Deploy `./dist` with the factory static deployment configuration, then verify live response policy, identity hashes, offline update, and both viewport screenshots. This section will be updated with the deployed commit and live evidence.
+Repair commit `2b95f93cadccb0b20daee0ecdfd9b71eb6876373` was pushed to `origin/main`. The corresponding `dist/` was deployed on 2026-08-28 with `/opt/fleet/lib/deploy-static.sh pdf-flow-reader ./dist` to Azure Static Web App `sf-pdf-flow-reader` in `centralus` (deployment ID `589b12cf-fd95-4f13-ad09-a1afa6ce0b90`). Production URL: `https://pdf-flow-reader.sociobot.in/`.
+
+Live verification:
+
+- Factory URL verification on `/demo/`: HTTP 200, 881ms load, correct title/lang/h1/main, no missing alts or unnamed buttons, and no console errors.
+- All 37 publicly served build files match the local `dist/` SHA-256 byte-for-byte.
+- CSP, Permissions-Policy, HSTS, frame denial, nosniff, and Referrer-Policy are present. Hashed assets are immutable; `sw.js` is no-cache; the manifest uses `application/manifest+json`. HTTP redirects to HTTPS. Unknown routes return the designed page with HTTP 404.
+- Every crawled internal link returns 200. The operator link at `https://sociobot.in` returns 200.
+- Live Axe: zero serious/critical findings on home, Privacy, Terms, 404, and all four reader treatments.
+- Live Lighthouse mobile `/demo/`: Performance **100**, Accessibility **100**, Best Practices **100**, LCP **1.6s**, CLS **0**, total blocking time **40ms**.
+- Live evidence is stored in `.factory/repair-artifacts/live/`.

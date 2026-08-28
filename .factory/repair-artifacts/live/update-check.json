@@ -1,0 +1,11 @@
+{
+  "candidateCacheBeforeDeploy": "pdf-flow-reader-5b5dfa03d15e",
+  "deployedCache": "pdf-flow-reader-a271f7ea36a4",
+  "serviceWorkerControlled": true,
+  "updateSignalObserved": true,
+  "offlineReload": {
+    "title": "Demo — PDF Flow Reader",
+    "heading": "Reading reading-routine",
+    "offlineBannerVisible": true
+  }
+}
