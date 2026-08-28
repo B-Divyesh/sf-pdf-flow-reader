@@ -8,10 +8,10 @@
   },
   {
     "id": "private-local",
-    "claim": "Your PDF is processed on this device; no document upload or tracking request is made.",
+    "claim": "Your PDF is processed on this device with no upload, analytics, ads, tracking pixels, CDN scripts, or remote fonts.",
     "where": "landing, footer, privacy page, README",
     "test": "npx playwright test --grep @claim:private-local",
-    "sandbox": "fresh browser context; run the sample flow while recording requests; assert every request is same-origin and no request carries document content"
+    "sandbox": "fresh browser context; run the sample flow while recording every request and browser storage surface; allow only the product shell, local assets, worker, and sample PDF; assert no request carries document content"
   },
   {
     "id": "offline-reload",
@@ -33,5 +33,40 @@
     "where": "README",
     "test": "npx playwright test --grep @claim:keyboard-controls",
     "sandbox": "fresh browser context; open /demo/, operate block movement and text size with J and ] keys, and assert the visible results"
+  },
+  {
+    "id": "local-data-control",
+    "claim": "Export, import, or erase the local reading library.",
+    "where": "Manage local data dialog, privacy page, README",
+    "test": "npx playwright test --grep @claim:local-data-control",
+    "sandbox": "fresh browser context; open a generated PDF, export its library JSON, erase it with confirmation, import the export, and assert the document is restored"
+  },
+  {
+    "id": "stored-data-scope",
+    "claim": "Only extracted text, settings, and reading position are stored; the original PDF and its password are never retained.",
+    "where": "Manage local data dialog, password dialog, privacy page",
+    "test": "npx playwright test --grep @claim:stored-data-scope",
+    "sandbox": "fresh browser context; unlock the encrypted fixture, inspect the saved IndexedDB record, and assert its exact fields contain neither PDF bytes nor the entered password"
+  },
+  {
+    "id": "scan-report",
+    "claim": "Scanned or image-only PDFs are reported as unsupported without cloud OCR.",
+    "where": "reader error, privacy page, README",
+    "test": "npx playwright test --grep @claim:scan-report",
+    "sandbox": "fresh browser context; open a generated blank PDF and assert the selectable-text and no-cloud-OCR error with no cross-origin request"
+  },
+  {
+    "id": "copy-restrictions",
+    "claim": "Owner restrictions on text copying are respected and never bypassed.",
+    "where": "reader error, terms page, README",
+    "test": "npx playwright test --grep @claim:copy-restrictions",
+    "sandbox": "fresh browser context; open the bundled copy-restricted fixture and assert extraction is refused with the owner-restriction message"
+  },
+  {
+    "id": "reader-adjustments",
+    "claim": "Adjust text size, line spacing, word spacing, line width, typeface, and four contrast treatments.",
+    "where": "reader setup panel, landing how-it-works, README",
+    "test": "npx playwright test --grep @claim:reader-adjustments",
+    "sandbox": "fresh browser context; open /demo/, operate every reading adjustment, and assert computed type, spacing, width, and all four named treatments"
   }
 ]

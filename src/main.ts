@@ -46,7 +46,7 @@ function footer() {
 
 function shell(content: string) {
   const demoBanner = demoMode ? `<aside class="demo-banner" aria-label="Demo controls"><strong>Demo — sample data, nothing is saved to your real library.</strong><div><button class="text-button" id="reset-demo" type="button">Reset demo</button><button class="secondary-button" id="start-real" type="button">Start for real</button></div></aside>` : '';
-  app.innerHTML = `${header()}<div id="connection-banner" class="connection-banner" role="status" hidden>You’re offline. Saved reading and new local PDFs still work.</div>${demoBanner}${content}${footer()}
+  app.innerHTML = `${header()}<div id="connection-banner" class="connection-banner" role="status" hidden>You’re offline. The local reader stays available.</div>${demoBanner}${content}${footer()}
   <div id="live-status" class="sr-only" aria-live="polite"></div>
   <div id="update-toast" class="toast" role="status" hidden><span>An app update is ready.</span><button type="button" id="reload-button">Reload</button></div>
   ${dialogs()}`;
@@ -97,6 +97,14 @@ function readerView(saved: SavedDocument, resumed = false) {
   current = saved;
   activeBlock = Math.min(saved.currentBlock, saved.blocks.length - 1);
   const headings = saved.blocks.map((block, index) => ({ block, index })).filter(({ block }) => block.kind === 'heading');
+  let hasLevelTwo = false;
+  const readingContent = saved.blocks.map((block, index) => {
+    if (block.kind !== 'heading') return `<p id="${block.id}" data-block-index="${index}" tabindex="-1">${escapeHtml(block.text)}</p>`;
+    let level = Math.max(2, Math.min(3, block.level || 3));
+    if (level === 3 && !hasLevelTwo) level = 2;
+    if (level === 2) hasLevelTwo = true;
+    return `<h${level} id="${block.id}" data-block-index="${index}" tabindex="-1"><span class="page-tag">Page ${block.page}</span>${escapeHtml(block.text)}</h${level}>`;
+  }).join('');
   shell(`<main id="main" class="reader-shell" data-theme="${saved.settings.theme}">
     <h1 class="sr-only">Reading ${escapeHtml(saved.name)}</h1>
     <nav class="outline-panel" id="outline-panel" aria-label="Document headings"><div class="panel-heading"><div><p class="eyebrow">Document map</p><h2>Headings</h2></div><button class="icon-button panel-close" data-close-panel="outline-panel" aria-label="Close headings">${icons.close}</button></div>
@@ -105,8 +113,8 @@ function readerView(saved: SavedDocument, resumed = false) {
     <section class="reader-center">
       <div class="reader-toolbar" aria-label="Reading tools"><button class="toolbar-button" id="outline-button" type="button" aria-label="Headings" aria-controls="outline-panel" aria-expanded="false">${icons.menu}<span>Headings</span></button><div class="doc-meta"><strong>${escapeHtml(saved.name)}</strong><span>${saved.pageCount} pages · ${saved.blocks.length} blocks</span></div><button class="toolbar-button" id="settings-button" type="button" aria-label="Reading setup" aria-controls="settings-panel" aria-expanded="false">${icons.tune}<span>Reading setup</span></button><button class="secondary-button change-file" id="change-file" type="button">Open another</button></div>
       <div class="confidence ${saved.confidence < 55 ? 'low' : ''}" role="note"><button type="button" id="confidence-toggle" aria-expanded="false"><span class="confidence-icon" aria-hidden="true">!</span><span><strong>${confidenceLabel(saved.confidence)}</strong><small>Extraction estimate · check against the source when meaning matters</small></span><span aria-hidden="true">＋</span></button><div id="confidence-details" hidden><p>Flow Reader adapts extracted text; it does not repair or certify the PDF.</p><ul>${saved.confidenceNotes.map((note) => `<li>${escapeHtml(note)}</li>`).join('')}</ul></div></div>
-      <article class="reading-plane" id="reading-plane" aria-label="Reflowed document" style="${settingsStyle(saved.settings)}">${saved.blocks.map((block, index) => block.kind === 'heading' ? `<h${Math.max(2, Math.min(3, block.level || 3))} id="${block.id}" data-block-index="${index}" tabindex="-1"><span class="page-tag">Page ${block.page}</span>${escapeHtml(block.text)}</h${Math.max(2, Math.min(3, block.level || 3))}>` : `<p id="${block.id}" data-block-index="${index}" tabindex="-1">${escapeHtml(block.text)}</p>`).join('')}</article>
-      <div class="position-bar" aria-label="Reading position"><span id="position-text">Page ${saved.blocks[activeBlock]?.page || 1} of ${saved.pageCount}</span><div><button type="button" id="previous-block" aria-label="Previous paragraph">K ↑</button><button type="button" id="next-block" aria-label="Next paragraph">J ↓</button></div></div>
+      <article class="reading-plane" id="reading-plane" aria-label="Reflowed document" style="${settingsStyle(saved.settings)}">${readingContent}</article>
+      <div class="position-bar" aria-label="Reading position"><span id="position-text">Page ${saved.blocks[activeBlock]?.page || 1} of ${saved.pageCount}</span><div><button type="button" id="previous-block" aria-label="Previous paragraph"><span aria-hidden="true">Previous ↑</span></button><button type="button" id="next-block" aria-label="Next paragraph"><span aria-hidden="true">Next ↓</span></button></div></div>
     </section>
     <aside class="settings-panel" id="settings-panel" aria-label="Reading setup"><div class="panel-heading"><div><p class="eyebrow">Make it yours</p><h2>Reading setup</h2></div><button class="icon-button panel-close" data-close-panel="settings-panel" aria-label="Close reading setup">${icons.close}</button></div>${settingsControls(saved.settings)}</aside>
   </main>${resumed ? '<div class="resume-toast" role="status">Restored your last reading position.</div>' : ''}`);
@@ -130,9 +138,9 @@ function settingsControls(settings: ReaderSettings) {
 }
 
 function dialogs() {
-  return `<dialog id="shortcut-dialog"><form method="dialog"><div class="dialog-heading"><h2>Keyboard shortcuts</h2><button class="icon-button" value="close" aria-label="Close shortcuts">${icons.close}</button></div><dl class="shortcut-list"><div><dt><kbd>J</kbd> / <kbd>K</kbd></dt><dd>Next / previous block</dd></div><div><dt><kbd>]</kbd> / <kbd>[</kbd></dt><dd>Increase / decrease text</dd></div><div><dt><kbd>T</kbd></dt><dd>Cycle contrast</dd></div><div><dt><kbd>H</kbd></dt><dd>Open headings</dd></div><div><dt><kbd>Space</kbd></dt><dd>Move down one screen</dd></div></dl></form></dialog>
-  <dialog id="data-dialog"><form method="dialog"><div class="dialog-heading"><h2>Local reading data</h2><button class="icon-button" value="close" aria-label="Close local data">${icons.close}</button></div><p>Extracted text, settings, and reading positions live only in this browser.</p><div class="dialog-actions"><button type="button" class="secondary-button" id="export-button">Export my data</button><button type="button" class="secondary-button" id="import-button">Import data</button><input class="visually-hidden-input" id="import-input" type="file" accept="application/json" aria-label="Import PDF Flow Reader data" tabindex="-1"><button type="button" class="danger-button" id="clear-button">Erase all local data</button></div><p class="dialog-status" id="data-status" role="status"></p></form></dialog>
-  <dialog id="password-dialog"><form id="password-form"><div class="dialog-heading"><h2>Password protected</h2><button class="icon-button" value="cancel" formmethod="dialog" aria-label="Cancel opening PDF">${icons.close}</button></div><p>This PDF needs its open password. The password is used only for this attempt and is never saved.</p><label for="password-input">PDF password</label><input id="password-input" type="password" autocomplete="off" required><p id="password-error" class="field-error" role="alert"></p><div class="dialog-actions"><button type="submit" class="primary-button">Unlock locally</button><button value="cancel" formmethod="dialog" class="secondary-button">Cancel</button></div></form></dialog>`;
+  return `<dialog id="shortcut-dialog" aria-labelledby="shortcut-title"><form method="dialog"><div class="dialog-heading"><h2 id="shortcut-title">Keyboard shortcuts</h2><button class="icon-button" value="close" aria-label="Close shortcuts">${icons.close}</button></div><dl class="shortcut-list"><div><dt><kbd>J</kbd> / <kbd>K</kbd></dt><dd>Next / previous block</dd></div><div><dt><kbd>]</kbd> / <kbd>[</kbd></dt><dd>Increase / decrease text</dd></div><div><dt><kbd>T</kbd></dt><dd>Cycle contrast</dd></div><div><dt><kbd>H</kbd></dt><dd>Open headings</dd></div><div><dt><kbd>Space</kbd></dt><dd>Move down one screen</dd></div></dl></form></dialog>
+  <dialog id="data-dialog" aria-labelledby="data-title"><form method="dialog"><div class="dialog-heading"><h2 id="data-title">Local reading data</h2><button class="icon-button" value="close" aria-label="Close local data">${icons.close}</button></div><p>Extracted text, settings, and reading positions live only in this browser.</p><div class="dialog-actions"><button type="button" class="secondary-button" id="export-button">Export my data</button><button type="button" class="secondary-button" id="import-button">Import data</button><input class="visually-hidden-input" id="import-input" type="file" accept="application/json" aria-label="Import PDF Flow Reader data" tabindex="-1"><button type="button" class="danger-button" id="clear-button">Erase all local data</button></div><p class="dialog-status" id="data-status" role="status"></p></form></dialog>
+  <dialog id="password-dialog" aria-labelledby="password-title"><form id="password-form"><div class="dialog-heading"><h2 id="password-title">Password protected</h2><button class="icon-button" value="cancel" formmethod="dialog" aria-label="Cancel opening PDF">${icons.close}</button></div><p>This PDF needs its open password. The password is used only for this attempt and is never saved.</p><label for="password-input">PDF password</label><input id="password-input" type="password" autocomplete="off" required><p id="password-error" class="field-error" role="alert"></p><div class="dialog-actions"><button type="submit" class="primary-button">Unlock locally</button><button value="cancel" formmethod="dialog" class="secondary-button">Cancel</button></div></form></dialog>`;
 }
 
 function bindShared() {
@@ -231,21 +239,51 @@ function bindReader(resumed: boolean) {
   document.querySelector('#outline-button')?.addEventListener('click', () => togglePanel('outline-panel'));
   document.querySelector('#settings-button')?.addEventListener('click', () => togglePanel('settings-panel'));
   document.querySelectorAll<HTMLElement>('[data-close-panel]').forEach((button) => button.addEventListener('click', () => closePanel(button.dataset.closePanel!)));
-  document.querySelectorAll<HTMLButtonElement>('[data-block]').forEach((button) => button.addEventListener('click', () => { goToBlock(Number(button.dataset.block)); closePanel('outline-panel'); }));
+  document.querySelectorAll<HTMLButtonElement>('[data-block]').forEach((button) => button.addEventListener('click', () => { closePanel('outline-panel', false); goToBlock(Number(button.dataset.block)); }));
   document.querySelector('#previous-block')?.addEventListener('click', () => goToBlock(activeBlock - 1));
   document.querySelector('#next-block')?.addEventListener('click', () => goToBlock(activeBlock + 1));
   bindSettings();
+  syncPanelState();
+  const panelMedia = matchMedia('(max-width: 1100px)');
+  panelMedia.addEventListener('change', syncPanelState);
   let scrollTimer = 0;
   window.addEventListener('scroll', () => { window.clearTimeout(scrollTimer); scrollTimer = window.setTimeout(updatePositionFromScroll, 120); }, { passive: true });
   if (resumed && current.currentBlock > 0) requestAnimationFrame(() => goToBlock(current!.currentBlock, false)); else updatePosition(0);
 }
 
 function togglePanel(id: string) {
-  const panel = document.querySelector<HTMLElement>(`#${id}`)!; const open = panel.classList.toggle('is-open');
-  document.body.classList.toggle('panel-open', open); const button = document.querySelector<HTMLButtonElement>(id === 'outline-panel' ? '#outline-button' : '#settings-button'); button?.setAttribute('aria-expanded', String(open));
+  const panel = document.querySelector<HTMLElement>(`#${id}`)!;
+  const open = panel.classList.toggle('is-open');
+  for (const other of document.querySelectorAll<HTMLElement>('.outline-panel.is-open, .settings-panel.is-open')) {
+    if (other.id !== id) closePanel(other.id, false);
+  }
+  document.body.classList.toggle('panel-open', open);
+  const button = panelButton(id);
+  button?.setAttribute('aria-expanded', String(open));
+  syncPanelState();
   if (open) panel.querySelector<HTMLElement>('button, input, select')?.focus();
 }
-function closePanel(id: string) { document.querySelector(`#${id}`)?.classList.remove('is-open'); document.body.classList.remove('panel-open'); document.querySelector(id === 'outline-panel' ? '#outline-button' : '#settings-button')?.setAttribute('aria-expanded', 'false'); }
+function panelButton(id: string) {
+  return document.querySelector<HTMLButtonElement>(id === 'outline-panel' ? '#outline-button' : '#settings-button');
+}
+function panelIsDrawer(id: string) {
+  return id === 'settings-panel' ? matchMedia('(max-width: 1100px)').matches : matchMedia('(max-width: 900px)').matches;
+}
+function syncPanelState() {
+  for (const panel of document.querySelectorAll<HTMLElement>('.outline-panel, .settings-panel')) {
+    const closedDrawer = panelIsDrawer(panel.id) && !panel.classList.contains('is-open');
+    panel.inert = closedDrawer;
+    if (closedDrawer) panel.setAttribute('aria-hidden', 'true'); else panel.removeAttribute('aria-hidden');
+  }
+}
+function closePanel(id: string, restoreFocus = true) {
+  document.querySelector(`#${id}`)?.classList.remove('is-open');
+  document.body.classList.remove('panel-open');
+  const button = panelButton(id);
+  button?.setAttribute('aria-expanded', 'false');
+  syncPanelState();
+  if (restoreFocus && panelIsDrawer(id)) button?.focus();
+}
 
 function goToBlock(index: number, focus = true) {
   if (!current) return; activeBlock = Math.max(0, Math.min(index, current.blocks.length - 1));
@@ -296,6 +334,10 @@ window.addEventListener('keydown', (event) => {
   if (key === ']' || key === '[') { event.preventDefault(); current.settings.fontSize = Math.max(18, Math.min(36, current.settings.fontSize + (key === ']' ? 2 : -2))); applySettings(); announce(`Text size ${current.settings.fontSize} pixels.`); }
   if (key === 't') { event.preventDefault(); const themes: ReaderSettings['theme'][] = ['cream', 'white', 'dark', 'contrast']; current.settings.theme = themes[(themes.indexOf(current.settings.theme) + 1) % themes.length]; applySettings(); announce(`${current.settings.theme} contrast.`); }
   if (key === 'h') { event.preventDefault(); togglePanel('outline-panel'); }
+  if (key === 'escape') {
+    const openPanel = document.querySelector<HTMLElement>('.outline-panel.is-open, .settings-panel.is-open');
+    if (openPanel) { event.preventDefault(); closePanel(openPanel.id); }
+  }
 });
 
 async function boot() {

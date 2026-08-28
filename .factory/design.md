@@ -49,6 +49,7 @@ UI transitions last 160–220 ms and move only with opacity/transform. Panels en
 ## Asset plan and provenance
 
 - `reflow-gate`: original generated editorial illustration used only in the empty state and app social preview. Subject: scattered facsimile page fragments entering a black mechanical reading gate and becoming one wide, calm column. World: tactile paper workshop. Materials: newsprint, black ink, cobalt enamel, fluorescent yellow tabs. Light: flat overcast studio light. Lens/composition: orthographic editorial still life, wide horizontal frame, clear negative space. Palette words: newsprint, ink black, cobalt, signal yellow, restrained vermilion. Negative list: no people, no eyes, no brands, no logos, no legible words, no watermarks, no UI screenshot, no gradients, no glossy 3D.
+- `social-card.jpg`: a 1200 × 630 center crop composed from the original `reflow-gate` source. It adds no new generated or third-party material and is rebuilt by `npm run assets`.
 - Generator: Azure AI Foundry factory image deployment via `/opt/fleet/lib/gen-image.sh`; generated 2026-08-28. Original asset generated for this product; no third-party source material. Prompt sidecar is stored beside the source asset.
 - Interface icons and PWA icons: hand-authored SVG/PNG geometric “flow gate” mark, created for this product, MIT with the application.
 
