@@ -1,15 +1,15 @@
 {
-  "url": "http://127.0.0.1:4181",
+  "url": "http://127.0.0.1:4173",
   "initial": {
-    "controller": "http://127.0.0.1:4181/sw.js",
+    "controller": "http://127.0.0.1:4173/sw.js",
     "caches": [
-      "pdf-flow-reader-a271f7ea36a4"
+      "pdf-flow-reader-877a411d62fe"
     ]
   },
   "update": {
-    "controller": "http://127.0.0.1:4181/sw.js",
+    "controller": "http://127.0.0.1:4173/sw.js",
     "caches": [
-      "pdf-flow-reader-a271f7ea36a4",
+      "pdf-flow-reader-877a411d62fe",
       "pdf-flow-reader-qa-update"
     ],
     "toastVisibleNow": true,
