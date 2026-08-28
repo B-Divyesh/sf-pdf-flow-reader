@@ -1,8 +1,10 @@
 # PDF Flow Reader — repair handoff
 
-## Release status: **READY FOR DEPLOYMENT**
+## Release status: **DEPLOYED**
 
-Repair commit is the current `main` revision (base verified candidate `2daa73473e8ae03cc9e9913df33025d4c3d22bc6`; verifier report `4570572ab9911612851506f06d719f7f6c30d772`).
+Repair commits: `e4f01e35ab286027627a1cc0e8497e78aed74a1c` (demo, claims, static policy) and `083e1990f342d46007718866e3ec083a1ed26527` (manifest MIME). Base verified candidate: `2daa73473e8ae03cc9e9913df33025d4c3d22bc6`; verifier report: `4570572ab9911612851506f06d719f7f6c30d772`.
+
+Deployed to production at `https://pdf-flow-reader.sociobot.in/` on 2026-08-28 using `swa deploy ./dist --env production` against Azure Static Web App `sf-pdf-flow-reader`.
 
 All release-blocking verifier findings have been repaired without changing the local-first reader’s existing PDF flow:
 
@@ -48,6 +50,7 @@ npx playwright test --project=mobile
 - Lighthouse mobile on local production preview `/demo/`: Performance **99**, Accessibility **100**, LCP **2.0 s**, CLS **0** (`CHROME_PATH=…chrome-headless-shell … --chrome-flags='--no-sandbox'`).
 - `/opt/fleet/lib/verify-url.sh http://127.0.0.1:4173/demo/`: HTTP 200; title, `lang`, one h1, `<main>`, image alts, button labels, and console all pass (789 ms local load). The provided Playwright Axe integration passes with no serious or critical violations; standalone `axe-cli` could not start without `--no-sandbox` in this container.
 - The response policy and 404/cache/manifest/service-worker rules are regression-tested by `tests/unit/release-config.test.ts`; live hosting headers must be rechecked immediately after deployment because Vite preview does not apply Static Web Apps rules.
+- Live production recheck: `/demo/` returned 200 and `verify-url.sh` reported title `Demo — PDF Flow Reader`, `lang=en`, one h1, main, 0 missing image alts, 0 unlabeled buttons, and no console errors (812 ms). `/missing-page` returns the designed page with HTTP **404**. `/assets/main-CakAyJas.js` returns `Cache-Control: public, max-age=31536000, immutable`; `/manifest.webmanifest` returns `application/manifest+json` and `max-age=86400`; CSP, Permissions-Policy, X-Frame-Options, nosniff, and Referrer-Policy are present.
 
 ## Known gaps / honest limits
 
@@ -62,4 +65,4 @@ npx playwright test --project=mobile
 - Moderate with low-vision users against the stated 8-of-10 resume/task benchmark.
 - Add opt-in, on-device OCR only if a dependable offline model fits the performance and privacy budgets.
 - Add a side-by-side original-page preview only if testing shows it improves confidence without destabilizing reading.
-- Post-deploy: run `verify-url.sh`, inspect live response headers and `/missing-page` status, and repeat the demo offline/update smoke test against https://pdf-flow-reader.sociobot.in/.
+- Consider moderated low-vision research before extending the scope.
