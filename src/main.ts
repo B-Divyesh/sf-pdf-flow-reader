@@ -18,7 +18,10 @@ const icons = {
 };
 
 const escapeHtml = (text: string) => text.replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]!);
-const timeAgo = (timestamp: number) => new Intl.RelativeTimeFormat('en', { numeric: 'auto' }).format(-Math.max(1, Math.round((Date.now() - timestamp) / 86_400_000)), 'day');
+const timeAgo = (timestamp: number) => {
+  const days = Math.max(0, Math.floor((Date.now() - timestamp) / 86_400_000));
+  return days === 0 ? 'today' : new Intl.RelativeTimeFormat('en', { numeric: 'auto' }).format(-days, 'day');
+};
 const confidenceLabel = (score: number) => score >= 80 ? 'High confidence' : score >= 55 ? 'Review suggested' : 'Low confidence';
 
 function header() {
@@ -57,8 +60,8 @@ function homeView(error = '') {
         <h2>From rigid pages<br>to readable <mark>flow.</mark></h2>
         <p class="lede">Open a PDF and read its selectable text as one calm column. Adjust the words—not your eyes.</p>
         <div class="upload-zone" id="drop-zone">
-          <input id="pdf-input" type="file" accept="application/pdf,.pdf" class="visually-hidden-input">
-          <label class="primary-button" for="pdf-input">${icons.upload}<span>Choose a PDF</span></label>
+          <input id="pdf-input" type="file" accept="application/pdf,.pdf" class="visually-hidden-input" aria-label="PDF file" tabindex="-1">
+          <button class="primary-button" id="choose-pdf" type="button">${icons.upload}<span>Choose a PDF</span></button>
           <p>or drop one here · processed on this device</p>
         </div>
         ${error ? `<div class="error-box" role="alert"><strong>Couldn’t open that PDF.</strong><span>${escapeHtml(error)}</span><button class="link-button" type="button" id="retry-button">Try another file</button></div>` : ''}
@@ -92,7 +95,7 @@ function readerView(saved: SavedDocument, resumed = false) {
       ${headings.length ? `<ol class="heading-list">${headings.map(({ block, index }) => `<li><button type="button" data-block="${index}"><span>${String(block.page).padStart(2, '0')}</span>${escapeHtml(block.text)}</button></li>`).join('')}</ol>` : '<div class="panel-empty"><strong>No headings detected</strong><p>Use J and K to move paragraph by paragraph.</p></div>'}
     </nav>
     <section class="reader-center">
-      <div class="reader-toolbar" aria-label="Reading tools"><button class="toolbar-button" id="outline-button" type="button" aria-controls="outline-panel" aria-expanded="false">${icons.menu}<span>Headings</span></button><div class="doc-meta"><strong>${escapeHtml(saved.name)}</strong><span>${saved.pageCount} pages · ${saved.blocks.length} blocks</span></div><button class="toolbar-button" id="settings-button" type="button" aria-controls="settings-panel" aria-expanded="false">${icons.tune}<span>Reading setup</span></button><button class="secondary-button change-file" id="change-file" type="button">Open another</button></div>
+      <div class="reader-toolbar" aria-label="Reading tools"><button class="toolbar-button" id="outline-button" type="button" aria-label="Headings" aria-controls="outline-panel" aria-expanded="false">${icons.menu}<span>Headings</span></button><div class="doc-meta"><strong>${escapeHtml(saved.name)}</strong><span>${saved.pageCount} pages · ${saved.blocks.length} blocks</span></div><button class="toolbar-button" id="settings-button" type="button" aria-label="Reading setup" aria-controls="settings-panel" aria-expanded="false">${icons.tune}<span>Reading setup</span></button><button class="secondary-button change-file" id="change-file" type="button">Open another</button></div>
       <div class="confidence ${saved.confidence < 55 ? 'low' : ''}" role="note"><button type="button" id="confidence-toggle" aria-expanded="false"><span class="confidence-icon" aria-hidden="true">!</span><span><strong>${confidenceLabel(saved.confidence)}</strong><small>Extraction estimate · check against the source when meaning matters</small></span><span aria-hidden="true">＋</span></button><div id="confidence-details" hidden><p>Flow Reader adapts extracted text; it does not repair or certify the PDF.</p><ul>${saved.confidenceNotes.map((note) => `<li>${escapeHtml(note)}</li>`).join('')}</ul></div></div>
       <article class="reading-plane" id="reading-plane" aria-label="Reflowed document" style="${settingsStyle(saved.settings)}">${saved.blocks.map((block, index) => block.kind === 'heading' ? `<h${block.level || 3} id="${block.id}" data-block-index="${index}" tabindex="-1"><span class="page-tag">Page ${block.page}</span>${escapeHtml(block.text)}</h${block.level || 3}>` : `<p id="${block.id}" data-block-index="${index}" tabindex="-1">${escapeHtml(block.text)}</p>`).join('')}</article>
       <div class="position-bar" aria-label="Reading position"><span id="position-text">Page ${saved.blocks[activeBlock]?.page || 1} of ${saved.pageCount}</span><div><button type="button" id="previous-block" aria-label="Previous paragraph">K ↑</button><button type="button" id="next-block" aria-label="Next paragraph">J ↓</button></div></div>
@@ -120,8 +123,8 @@ function settingsControls(settings: ReaderSettings) {
 
 function dialogs() {
   return `<dialog id="shortcut-dialog"><form method="dialog"><div class="dialog-heading"><h2>Keyboard shortcuts</h2><button class="icon-button" value="close" aria-label="Close shortcuts">${icons.close}</button></div><dl class="shortcut-list"><div><dt><kbd>J</kbd> / <kbd>K</kbd></dt><dd>Next / previous block</dd></div><div><dt><kbd>]</kbd> / <kbd>[</kbd></dt><dd>Increase / decrease text</dd></div><div><dt><kbd>T</kbd></dt><dd>Cycle contrast</dd></div><div><dt><kbd>H</kbd></dt><dd>Open headings</dd></div><div><dt><kbd>Space</kbd></dt><dd>Move down one screen</dd></div></dl></form></dialog>
-  <dialog id="data-dialog"><form method="dialog"><div class="dialog-heading"><h2>Local reading data</h2><button class="icon-button" value="close" aria-label="Close local data">${icons.close}</button></div><p>Extracted text, settings, and reading positions live only in this browser.</p><div class="dialog-actions"><button type="button" class="secondary-button" id="export-button">Export my data</button><label class="secondary-button" for="import-input">Import data</label><input class="visually-hidden-input" id="import-input" type="file" accept="application/json"><button type="button" class="danger-button" id="clear-button">Erase all local data</button></div><p class="dialog-status" id="data-status" role="status"></p></form></dialog>
-  <dialog id="password-dialog"><form id="password-form"><div class="dialog-heading"><h2>Password protected</h2><button class="icon-button" value="close" formmethod="dialog" aria-label="Cancel opening PDF">${icons.close}</button></div><p>This PDF needs its open password. The password is used only for this attempt and is never saved.</p><label for="password-input">PDF password</label><input id="password-input" type="password" autocomplete="off" required><p id="password-error" class="field-error" role="alert"></p><div class="dialog-actions"><button type="submit" class="primary-button">Unlock locally</button><button value="close" formmethod="dialog" class="secondary-button">Cancel</button></div></form></dialog>`;
+  <dialog id="data-dialog"><form method="dialog"><div class="dialog-heading"><h2>Local reading data</h2><button class="icon-button" value="close" aria-label="Close local data">${icons.close}</button></div><p>Extracted text, settings, and reading positions live only in this browser.</p><div class="dialog-actions"><button type="button" class="secondary-button" id="export-button">Export my data</button><button type="button" class="secondary-button" id="import-button">Import data</button><input class="visually-hidden-input" id="import-input" type="file" accept="application/json" aria-label="Import PDF Flow Reader data" tabindex="-1"><button type="button" class="danger-button" id="clear-button">Erase all local data</button></div><p class="dialog-status" id="data-status" role="status"></p></form></dialog>
+  <dialog id="password-dialog"><form id="password-form"><div class="dialog-heading"><h2>Password protected</h2><button class="icon-button" value="cancel" formmethod="dialog" aria-label="Cancel opening PDF">${icons.close}</button></div><p>This PDF needs its open password. The password is used only for this attempt and is never saved.</p><label for="password-input">PDF password</label><input id="password-input" type="password" autocomplete="off" required><p id="password-error" class="field-error" role="alert"></p><div class="dialog-actions"><button type="submit" class="primary-button">Unlock locally</button><button value="cancel" formmethod="dialog" class="secondary-button">Cancel</button></div></form></dialog>`;
 }
 
 function bindShared() {
@@ -136,6 +139,7 @@ function bindShared() {
     const link = Object.assign(document.createElement('a'), { href: url, download: `pdf-flow-reader-${new Date().toISOString().slice(0, 10)}.json` });
     link.click(); URL.revokeObjectURL(url); announce('Your local reading data was exported.');
   });
+  document.querySelector('#import-button')?.addEventListener('click', () => document.querySelector<HTMLInputElement>('#import-input')?.click());
   document.querySelector<HTMLInputElement>('#import-input')?.addEventListener('change', async (event) => {
     const file = (event.currentTarget as HTMLInputElement).files?.[0]; if (!file) return;
     const status = document.querySelector<HTMLElement>('#data-status')!;
@@ -150,6 +154,7 @@ function bindShared() {
 
 function bindHome() {
   const input = document.querySelector<HTMLInputElement>('#pdf-input')!;
+  document.querySelector('#choose-pdf')?.addEventListener('click', () => input.click());
   input.addEventListener('change', () => input.files?.[0] && openFile(input.files[0]));
   const drop = document.querySelector<HTMLElement>('#drop-zone')!;
   for (const eventName of ['dragenter', 'dragover']) drop.addEventListener(eventName, (event) => { event.preventDefault(); drop.classList.add('is-dragging'); });
@@ -182,9 +187,10 @@ async function openFile(file: File, password?: string) {
 
 function showPassword(message: string) {
   homeView(); const dialog = document.querySelector<HTMLDialogElement>('#password-dialog')!; const form = document.querySelector<HTMLFormElement>('#password-form')!;
+  const file = pendingFile;
   document.querySelector('#password-error')!.textContent = message; dialog.showModal(); document.querySelector<HTMLInputElement>('#password-input')!.focus();
-  form.addEventListener('submit', (event) => { event.preventDefault(); const password = document.querySelector<HTMLInputElement>('#password-input')!.value; dialog.close(); if (pendingFile) openFile(pendingFile, password); }, { once: true });
-  dialog.addEventListener('close', () => { if (!dialog.returnValue) pendingFile = undefined; }, { once: true });
+  form.addEventListener('submit', (event) => { event.preventDefault(); const password = document.querySelector<HTMLInputElement>('#password-input')!.value; dialog.close('submit'); if (file) openFile(file, password); }, { once: true });
+  dialog.addEventListener('close', () => { if (dialog.returnValue === 'cancel') pendingFile = undefined; }, { once: true });
 }
 
 function bindReader(resumed: boolean) {

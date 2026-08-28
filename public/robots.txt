@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://pdf-flow-reader.sociobot.in/sitemap.xml

@@ -23,6 +23,7 @@ export async function extractPdf(file: File, password: string | undefined, onPro
   const pdfjs = await import('pdfjs-dist');
   pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
   const bytes = new Uint8Array(await file.arrayBuffer());
+  const digestPromise = crypto.subtle.digest('SHA-256', bytes.slice(0, Math.min(bytes.length, 1_000_000)));
   const loadingTask = pdfjs.getDocument({ data: bytes, password, isEvalSupported: false });
   activeTask = loadingTask;
   let pdf;
@@ -61,7 +62,7 @@ export async function extractPdf(file: File, password: string | undefined, onPro
   }
   if (!blocks.length) throw new ReaderError('EMPTY', 'No selectable text was found. This may be a scanned PDF; cloud OCR is intentionally not used.');
   const result = scoreExtraction(blocks, pdf.numPages);
-  const digest = await crypto.subtle.digest('SHA-256', bytes.slice(0, Math.min(bytes.length, 1_000_000)));
+  const digest = await digestPromise;
   const id = Array.from(new Uint8Array(digest).slice(0, 12)).map((part) => part.toString(16).padStart(2, '0')).join('');
   return { id, pageCount: pdf.numPages, blocks, confidence: result.score, confidenceNotes: result.notes };
 }
