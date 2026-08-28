@@ -1,0 +1,12 @@
+{
+  "slug": "pdf-flow-reader",
+  "title": "PDF Flow Reader",
+  "territory": "utilities",
+  "user": "Knowledge workers with low vision who need long PDFs to read as stable, keyboard-first reflowed prose rather than zoomed page images or broken screen-reader line fragments.",
+  "smallest_useful_product": "A browser-based local PDF reader with a single-column reflow mode, adjustable line/word spacing and contrast, heading navigation, keyboard reading position, and an explicit extraction-confidence warning.",
+  "success_measure": "In moderated sessions, 8 of 10 low-vision users can resume a saved reading position and complete a 10-minute reading task with fewer viewer switches than their normal workflow.",
+  "artifact_class": "pwa-offline",
+  "monetization": "free",
+  "constraints": "Keep documents on-device; respect encrypted/permission-protected PDFs; do not claim text extraction fixes a source document's WCAG compliance; maintain keyboard and screen-reader accessibility of the tool itself.",
+  "state": "RESEARCHED"
+}
