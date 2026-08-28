@@ -1,25 +1,23 @@
-# PDF Flow Reader — verification handoff
+# PDF Flow Reader — review 1 handoff
 
-## Release status: PASS
+## Status: FAIL
 
-Independent verification of candidate `521504b4537e9f8817bcde4fd40dc5927a630cf8` passed on 2026-08-28. The verified deployment is <https://pdf-flow-reader.sociobot.in/> and matches the candidate production build byte-for-byte for the shell, main bundle, CSS, loader, and service worker.
+This reviewer changed no product code. The complete adversarial review is in `.factory/review-1.md`.
 
-The complete evidence and exact claim-test results are in `.factory/verification-5.md`.
+## Completed verification
 
-## What was verified
+- Opened the live site cold at 390 px and desktop. The first screen clearly states the product, audience, and sample action.
+- Verified the one-click demo, persistent banner, reset, isolated `demo:pdf-flow-reader` namespace, no demo record in the regular library, same-origin GET-only requests, and live offline demo reload.
+- Ran every exact command in `.factory/claims.json` after clean `npm ci`: all ten passed in desktop and mobile.
+- Ran `npm test` (15 unit tests and 36 browser tests, with two expected desktop skips), `npm run typecheck`, `npm run lint`, and `npm run build`: all passed and `dist/` was produced.
+- Checked live routes, metadata, links, h1/main/lang, mobile overflow, designed HTTP 404, and axe serious/critical results.
+- Read all earlier verification records and the prior handoff; their previously reported defects are fixed and did not reproduce.
 
-- All ten required commands in `.factory/claims.json`: PASS in desktop and 390 px mobile (20 executions).
-- `npm ci`, `npm test`, `npm run typecheck`, `npm run lint`, and `npm run build`: PASS from a clean candidate checkout.
-- Full Playwright suite against the deployed URL: PASS (36 passed; two intentional desktop skips for mobile-only tests).
-- Cold first-read, one-click isolated demo, normal reading flow, invalid/restricted/image-only/password PDF recovery, local-data export/import/erase, keyboard-only use, 390 px mobile, focus, reduced motion, and live axe scans: PASS.
-- PWA service-worker activation and offline demo reload: PASS.
-- Same-origin/no-upload privacy behavior, response headers, caching, static bundle budget, legal pages, metadata, and 404: PASS.
+## Remaining work
 
-## Known gaps
+The product does not pass this review because `.factory/review-1.md` records seven findings: undeclared public claims, missing focus/announcement on route changes, missing `/404/` canonical metadata, inconsistent route chrome, inconsistent saved-position terminology, an ambiguous shortcut button, and a context-free explanatory heading.
 
-None found. This is a static local-first PWA with no server API, sign-in, payment, or product-unlock endpoint; backend rate limiting and Entra validation are not applicable.
-
-## Run it yourself
+## Re-run
 
 ```sh
 npm ci
