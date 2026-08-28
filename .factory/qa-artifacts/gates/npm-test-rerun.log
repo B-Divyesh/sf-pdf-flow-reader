@@ -1,0 +1,140 @@
+
+> pdf-flow-reader@1.0.0 test
+> npm run test:unit && npm run test:e2e
+
+
+> pdf-flow-reader@1.0.0 test:unit
+> vitest run tests/unit
+
+
+ RUN  v3.2.7 /work/repo
+
+ ✓ tests/unit/extract.test.ts (3 tests) 11ms
+ ✓ tests/unit/release-config.test.ts (5 tests) 88ms
+
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+   Start at  12:37:15
+   Duration  1.69s (transform 280ms, setup 0ms, collect 533ms, tests 99ms, environment 1ms, prepare 596ms)
+
+
+> pdf-flow-reader@1.0.0 test:e2e
+> playwright test
+
+
+Running 32 tests using 2 workers
+
+(node:11915) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11916) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11916) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11915) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [desktop] › tests/e2e/app.spec.ts:30:1 › empty state is accessible and fits the viewport (5.1s)
+  ✓   3 [desktop] › tests/e2e/app.spec.ts:64:1 › shows a useful invalid-file error (2.0s)
+  ✓   1 [desktop] › tests/e2e/app.spec.ts:47:1 › @claim:resume-place extracts a PDF, adjusts reading, and resumes position (8.5s)
+  ✓   4 [desktop] › tests/e2e/app.spec.ts:70:1 › @claim:offline-reload app shell reloads offline after first visit (4.7s)
+  ✓   5 [desktop] › tests/e2e/app.spec.ts:82:1 › @claim:demo-sample opens the bundled sample in an isolated demo library (4.7s)
+  ✓   6 [desktop] › tests/e2e/app.spec.ts:98:1 › @claim:private-local keeps the demo flow on the product origin (2.4s)
+  ✘   8 [desktop] › tests/e2e/app.spec.ts:153:1 › @claim:local-data-control exports, erases, and imports the local library (995ms)
+(node:12155) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12155) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 [desktop] › tests/e2e/app.spec.ts:119:1 › @claim:keyboard-controls changes the sample reader with keys (4.7s)
+  ✓   9 [desktop] › tests/e2e/app.spec.ts:210:1 › @claim:scan-report reports image-only PDFs without a cloud request (2.5s)
+  ✓  11 [desktop] › tests/e2e/app.spec.ts:221:1 › @claim:copy-restrictions refuses a PDF whose owner disabled text copying (2.5s)
+  ✓  10 [desktop] › tests/e2e/app.spec.ts:185:1 › @claim:stored-data-scope retains extracted reading data but no PDF bytes or password (6.5s)
+  -  13 [desktop] › tests/e2e/app.spec.ts:252:1 › mobile drawers are inert when closed and return focus to their opener
+  -  14 [desktop] › tests/e2e/app.spec.ts:279:1 › mobile reading controls stay visible and all reported targets meet 44px
+  ✓  12 [desktop] › tests/e2e/app.spec.ts:228:1 › @claim:reader-adjustments applies every reading control and contrast treatment (4.0s)
+  ✓  15 [desktop] › tests/e2e/app.spec.ts:297:1 › reader focus and dialogs expose visible accessible state (3.2s)
+(node:12336) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12336) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  17 [mobile] › tests/e2e/app.spec.ts:30:1 › empty state is accessible and fits the viewport (3.9s)
+  ✓  18 [mobile] › tests/e2e/app.spec.ts:47:1 › @claim:resume-place extracts a PDF, adjusts reading, and resumes position (5.9s)
+  ✓  16 [desktop] › tests/e2e/app.spec.ts:312:1 › legal, not-found, and every reader contrast treatment pass serious accessibility checks (18.5s)
+(node:12531) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  19 [mobile] › tests/e2e/app.spec.ts:64:1 › shows a useful invalid-file error (2.1s)
+(node:12531) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  20 [mobile] › tests/e2e/app.spec.ts:82:1 › @claim:demo-sample opens the bundled sample in an isolated demo library (3.8s)
+  ✓  21 [mobile] › tests/e2e/app.spec.ts:98:1 › @claim:private-local keeps the demo flow on the product origin (2.8s)
+  ✓  22 [mobile] › tests/e2e/app.spec.ts:70:1 › @claim:offline-reload app shell reloads offline after first visit (5.0s)
+  ✓  23 [mobile] › tests/e2e/app.spec.ts:119:1 › @claim:keyboard-controls changes the sample reader with keys (6.2s)
+  ✓  24 [mobile] › tests/e2e/app.spec.ts:153:1 › @claim:local-data-control exports, erases, and imports the local library (3.5s)
+  ✓  26 [mobile] › tests/e2e/app.spec.ts:210:1 › @claim:scan-report reports image-only PDFs without a cloud request (2.7s)
+  ✓  27 [mobile] › tests/e2e/app.spec.ts:221:1 › @claim:copy-restrictions refuses a PDF whose owner disabled text copying (3.0s)
+  ✓  25 [mobile] › tests/e2e/app.spec.ts:185:1 › @claim:stored-data-scope retains extracted reading data but no PDF bytes or password (6.5s)
+  ✓  28 [mobile] › tests/e2e/app.spec.ts:228:1 › @claim:reader-adjustments applies every reading control and contrast treatment (3.8s)
+  ✓  29 [mobile] › tests/e2e/app.spec.ts:252:1 › mobile drawers are inert when closed and return focus to their opener (5.8s)
+  ✓  30 [mobile] › tests/e2e/app.spec.ts:279:1 › mobile reading controls stay visible and all reported targets meet 44px (2.7s)
+  ✓  31 [mobile] › tests/e2e/app.spec.ts:297:1 › reader focus and dialogs expose visible accessible state (2.7s)
+  ✓  32 [mobile] › tests/e2e/app.spec.ts:312:1 › legal, not-found, and every reader contrast treatment pass serious accessibility checks (8.9s)
+
+
+  1) [desktop] › tests/e2e/app.spec.ts:153:1 › @claim:local-data-control exports, erases, and imports the local library 
+
+    Error: browser.newContext: Target page, context or browser has been closed
+    Browser logs:
+
+    <launching> /opt/pw-browsers/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-myamJl --remote-debugging-pipe --no-startup-window
+    <launched> pid=11942
+    [pid=11942][err] [0828/123723.586860:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+    [pid=11942][err] [0828/123723.586949:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+    [pid=11942][err] [0828/123723.586974:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+    [pid=11942][err] [0828/123723.674526:WARNING:device/bluetooth/dbus/bluez_dbus_manager.cc:209] Floss manager service not available, cannot set Floss enable/disable.
+    [pid=11942][err] [0828/123723.679151:WARNING:sandbox/policy/linux/sandbox_linux.cc:405] InitializeSandbox() called with multiple threads in process gpu-process.
+    [pid=11942][err] [0828/123730.383047:INFO:CONSOLE:25] "Warning: Indexing all PDF objects", source: http://127.0.0.1:4173/assets/pdf.worker.min-r-TJsTTt.mjs (25)
+    [pid=11942][err] Received signal 11 SEGV_MAPERR 0000000001b0
+    [pid=11942][err] #0 0x6493aff7275a (/opt/pw-browsers/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell+0x2d6a759)
+    [pid=11942][err] #1 0x6493b3fd8a74 (/opt/pw-browsers/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell+0x6dd0a73)
+    [pid=11942][err] #2 0x721b87fb6330 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x4532f)
+    [pid=11942][err] #3 0x6493b360aa49 (/opt/pw-browsers/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell+0x6402a48)
+    [pid=11942][err] #4 0x6493b35d099e (/opt/pw-browsers/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell+0x63c899d)
+    [pid=11942][err] #5 0x6493b3429939 (/opt/pw-browsers/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell+0x6221938)
+    [pid=11942][err] #6 0x6493b087a709 (/opt/pw-browsers/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell+0x3672708)
+    [pid=11942][err] #7 0x6493b087a5f3 (/opt/pw-browsers/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell+0x36725f2)
+    [pid=11942][err] #8 0x6493b087cca2 (/opt/pw-browsers/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell+0x3674ca1)
+    [pid=11942][err] #9 0x6493b087c14a (/opt/pw-browsers/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell+0x3674149)
+    [pid=11942][err] #10 0x6493b35821b5 (/opt/pw-browsers/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell+0x637a1b4)
+    [pid=11942][err] #11 0x6493aec17435 (/opt/pw-browsers/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell+0x1a0f434)
+    [pid=11942][err] #12 0x6493aec1aa1d (/opt/pw-browsers/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell+0x1a12a1c)
+    [pid=11942][err] #13 0x6493af248971 (/opt/pw-browsers/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell+0x2040970)
+    [pid=11942][err] #14 0x6493af248101 (/opt/pw-browsers/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell+0x2040100)
+    [pid=11942][err] #15 0x6493b113bf3f (/opt/pw-browsers/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell+0x3f33f3e)
+    [pid=11942][err] #16 0x6493b11e65b6 (/opt/pw-browsers/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell+0x3fde5b5)
+    [pid=11942][err] #17 0x6493b11e6736 (/opt/pw-browsers/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell+0x3fde735)
+    [pid=11942][err] #18 0x6493b11eb681 (/opt/pw-browsers/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell+0x3fe3680)
+    [pid=11942][err] #19 0x6493b11e6b3e (/opt/pw-browsers/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell+0x3fdeb3d)
+    [pid=11942][err] #20 0x6493b11e4f4e (/opt/pw-browsers/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell+0x3fdcf4d)
+    [pid=11942][err] #21 0x6493b3f82027 (/opt/pw-browsers/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell+0x6d7a026)
+    [pid=11942][err] #22 0x6493b1c53af2 (/opt/pw-browsers/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell+0x4a4baf1)
+    [pid=11942][err] #23 0x721b87f9b1ca (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9)
+    [pid=11942][err] #24 0x721b87f9b28b (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a28a)
+    [pid=11942][err] #25 0x6493b179312a (/opt/pw-browsers/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell+0x458b129)
+    [pid=11942][err]   r8: 0000000000000070  r9: 000000000000002f r10: 0000000000000009 r11: 000023440190ca50
+    [pid=11942][err]  r12: 0000234400145880 r13: 00006493b7ccde98 r14: 00000000000000a8 r15: 0000000000000000
+    [pid=11942][err]   di: 00007ffe660578e8  si: 00000000000000a8  bp: 00007ffe660577a0  bx: 00007ffe660578e8
+    [pid=11942][err]   dx: 0000000000000009  ax: 0000000000000000  cx: 312e302e302e3732  sp: 00007ffe660575a0
+    [pid=11942][err]   ip: 00006493afccc0fd efl: 0000000000010206 cgf: 002b000000000033 erf: 0000000000000004
+    [pid=11942][err]  trp: 000000000000000e msk: 0000000000000000 cr2: 00000000000001b0
+    [pid=11942][err] [end of stack trace]
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/app--claim-local-data-cont-db81a-d-imports-the-local-library-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/app--claim-local-data-cont-db81a-d-imports-the-local-library-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [desktop] › tests/e2e/app.spec.ts:153:1 › @claim:local-data-control exports, erases, and imports the local library 
+  2 skipped
+  29 passed (1.4m)

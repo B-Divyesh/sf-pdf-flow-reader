@@ -1,0 +1,123 @@
+
+> pdf-flow-reader@1.0.0 test
+> npm run test:unit && npm run test:e2e
+
+
+> pdf-flow-reader@1.0.0 test:unit
+> vitest run tests/unit
+
+
+ RUN  v3.2.7 /work/repo
+
+ ✓ tests/unit/extract.test.ts (3 tests) 6ms
+ ✓ tests/unit/release-config.test.ts (5 tests) 86ms
+
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+   Start at  12:22:54
+   Duration  1.74s (transform 277ms, setup 0ms, collect 689ms, tests 92ms, environment 0ms, prepare 794ms)
+
+
+> pdf-flow-reader@1.0.0 test:e2e
+> playwright test
+
+[2m[WebServer] [22m(node:3925) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:3969) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 32 tests using 2 workers
+
+(node:3988) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3987) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3987) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3988) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/e2e/app.spec.ts:30:1 › empty state is accessible and fits the viewport (5.2s)
+  ✓   3 [desktop] › tests/e2e/app.spec.ts:64:1 › shows a useful invalid-file error (2.4s)
+  ✓   2 [desktop] › tests/e2e/app.spec.ts:47:1 › @claim:resume-place extracts a PDF, adjusts reading, and resumes position (8.8s)
+  ✓   5 [desktop] › tests/e2e/app.spec.ts:82:1 › @claim:demo-sample opens the bundled sample in an isolated demo library (3.5s)
+  ✓   4 [desktop] › tests/e2e/app.spec.ts:70:1 › @claim:offline-reload app shell reloads offline after first visit (5.0s)
+  ✓   6 [desktop] › tests/e2e/app.spec.ts:98:1 › @claim:private-local keeps the demo flow on the product origin (2.4s)
+  ✓   8 [desktop] › tests/e2e/app.spec.ts:153:1 › @claim:local-data-control exports, erases, and imports the local library (2.6s)
+  ✓   9 [desktop] › tests/e2e/app.spec.ts:185:1 › @claim:stored-data-scope retains extracted reading data but no PDF bytes or password (2.3s)
+  ✓  10 [desktop] › tests/e2e/app.spec.ts:210:1 › @claim:scan-report reports image-only PDFs without a cloud request (1.8s)
+  ✘   7 [desktop] › tests/e2e/app.spec.ts:119:1 › @claim:keyboard-controls changes the sample reader with keys (8.4s)
+(node:4308) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4308) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 [desktop] › tests/e2e/app.spec.ts:221:1 › @claim:copy-restrictions refuses a PDF whose owner disabled text copying (3.5s)
+  -  12 [desktop] › tests/e2e/app.spec.ts:252:1 › mobile drawers are inert when closed and return focus to their opener
+  -  13 [desktop] › tests/e2e/app.spec.ts:279:1 › mobile reading controls stay visible and all reported targets meet 44px
+  ✓  14 [desktop] › tests/e2e/app.spec.ts:297:1 › reader focus and dialogs expose visible accessible state (3.5s)
+  ✓  15 [desktop] › tests/e2e/app.spec.ts:228:1 › @claim:reader-adjustments applies every reading control and contrast treatment (4.6s)
+(node:4438) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4438) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  17 [mobile] › tests/e2e/app.spec.ts:30:1 › empty state is accessible and fits the viewport (4.0s)
+  ✓  18 [mobile] › tests/e2e/app.spec.ts:47:1 › @claim:resume-place extracts a PDF, adjusts reading, and resumes position (5.5s)
+  ✓  16 [desktop] › tests/e2e/app.spec.ts:312:1 › legal, not-found, and every reader contrast treatment pass serious accessibility checks (17.9s)
+(node:4625) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  19 [mobile] › tests/e2e/app.spec.ts:64:1 › shows a useful invalid-file error (2.2s)
+(node:4625) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  20 [mobile] › tests/e2e/app.spec.ts:82:1 › @claim:demo-sample opens the bundled sample in an isolated demo library (3.9s)
+  ✓  22 [mobile] › tests/e2e/app.spec.ts:98:1 › @claim:private-local keeps the demo flow on the product origin (2.1s)
+  ✓  21 [mobile] › tests/e2e/app.spec.ts:70:1 › @claim:offline-reload app shell reloads offline after first visit (4.7s)
+  ✓  24 [mobile] › tests/e2e/app.spec.ts:153:1 › @claim:local-data-control exports, erases, and imports the local library (3.0s)
+  ✓  23 [mobile] › tests/e2e/app.spec.ts:119:1 › @claim:keyboard-controls changes the sample reader with keys (5.2s)
+  ✓  26 [mobile] › tests/e2e/app.spec.ts:210:1 › @claim:scan-report reports image-only PDFs without a cloud request (2.6s)
+  ✓  25 [mobile] › tests/e2e/app.spec.ts:185:1 › @claim:stored-data-scope retains extracted reading data but no PDF bytes or password (5.2s)
+  ✓  27 [mobile] › tests/e2e/app.spec.ts:221:1 › @claim:copy-restrictions refuses a PDF whose owner disabled text copying (3.2s)
+  ✓  28 [mobile] › tests/e2e/app.spec.ts:228:1 › @claim:reader-adjustments applies every reading control and contrast treatment (3.1s)
+  ✓  30 [mobile] › tests/e2e/app.spec.ts:279:1 › mobile reading controls stay visible and all reported targets meet 44px (2.3s)
+  ✓  29 [mobile] › tests/e2e/app.spec.ts:252:1 › mobile drawers are inert when closed and return focus to their opener (5.8s)
+  ✓  31 [mobile] › tests/e2e/app.spec.ts:297:1 › reader focus and dialogs expose visible accessible state (2.8s)
+  ✓  32 [mobile] › tests/e2e/app.spec.ts:312:1 › legal, not-found, and every reader contrast treatment pass serious accessibility checks (8.1s)
+
+
+  1) [desktop] › tests/e2e/app.spec.ts:119:1 › @claim:keyboard-controls changes the sample reader with keys 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).not.[22mtoHaveAttribute[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  locator('[data-current="true"]')
+    Expected: not [32m"0"[39m
+    Received: [31m"[7m0[27m"[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "not toHaveAttribute" with timeout 5000ms[22m
+    [2m  - waiting for locator('[data-current="true"]')[22m
+    [2m    8 × locator resolved to <h2 id="p1-b0" tabindex="-1" data-current="true" data-block-index="0">…</h2>[22m
+    [2m      - unexpected value "0"[22m
+
+
+      121 |   await expect(page.getByRole('article', { name: 'Reflowed document' })).toBeVisible({ timeout: 15_000 });
+      122 |   await page.keyboard.press('j');
+    > 123 |   await expect(page.locator('[data-current="true"]')).not.toHaveAttribute('data-block-index', '0');
+          |                                                           ^
+      124 |   await page.keyboard.press('k');
+      125 |   await expect(page.locator('[data-current="true"]')).toHaveAttribute('data-block-index', '0');
+      126 |   await page.keyboard.press(']');
+        at /work/repo/tests/e2e/app.spec.ts:123:59
+
+    Error Context: test-results/app--claim-keyboard-contro-05159-the-sample-reader-with-keys-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/app--claim-keyboard-contro-05159-the-sample-reader-with-keys-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/app--claim-keyboard-contro-05159-the-sample-reader-with-keys-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [desktop] › tests/e2e/app.spec.ts:119:1 › @claim:keyboard-controls changes the sample reader with keys 
+  2 skipped
+  29 passed (1.5m)
