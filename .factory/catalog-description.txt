@@ -1,1 +1,1 @@
-Read long PDFs in a steady, adjustable column without uploading them.
+Read long PDFs as steady, adjustable prose without uploading them.

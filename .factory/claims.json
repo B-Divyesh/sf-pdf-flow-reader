@@ -82,5 +82,19 @@
     "where": "landing how-it-works, reader confidence note, README",
     "test": "npx playwright test --grep @claim:extraction-confidence",
     "sandbox": "fresh browser context; open /?demo=1, assert the visible confidence estimate and source-check instruction, then expand its extraction notes"
+  },
+  {
+    "id": "no-api-key-or-backend",
+    "claim": "No API keys or application backend are required.",
+    "where": "README run instructions",
+    "test": "npx playwright test --grep @claim:no-api-key-or-backend",
+    "sandbox": "build the product, start only its static preview server in a process with credentials removed, open /?demo=1, and assert the complete sample flow makes same-origin GET requests only"
+  },
+  {
+    "id": "artwork-provenance",
+    "claim": "The displayed artwork is original AI-generated artwork for PDF Flow Reader.",
+    "where": "site footer, terms page, design notes",
+    "test": "npx playwright test --grep @claim:artwork-provenance",
+    "sandbox": "verify the displayed asset, original source, prompt sidecars, matching prompt, generator record, generation date, and rendered footer credit"
   }
 ]

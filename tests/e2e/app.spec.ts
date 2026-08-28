@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { spawn } from 'node:child_process';
+import { access, readFile } from 'node:fs/promises';
 import { PDFDocument, StandardFonts } from 'pdf-lib';
 
 async function samplePdf() {
@@ -123,6 +125,77 @@ test('@claim:extraction-confidence shows the estimate, source check, and extract
   await note.getByRole('button').click();
   await expect(page.locator('#confidence-details')).toBeVisible();
   await expect(page.locator('#confidence-details li')).not.toHaveCount(0);
+});
+
+test('@claim:no-api-key-or-backend runs the static demo without credentials or an application backend', async ({ browser }, testInfo) => {
+  const port = 43_900 + testInfo.workerIndex;
+  const origin = `http://127.0.0.1:${port}`;
+  const preview = spawn(process.execPath, ['node_modules/vite/bin/vite.js', 'preview', '--host', '127.0.0.1', '--port', String(port), '--strictPort'], {
+    cwd: process.cwd(),
+    env: { PATH: process.env.PATH || '', NODE_ENV: 'production' },
+    stdio: ['ignore', 'pipe', 'pipe']
+  });
+  const output: string[] = [];
+  preview.stdout.on('data', (chunk) => output.push(String(chunk)));
+  preview.stderr.on('data', (chunk) => output.push(String(chunk)));
+
+  try {
+    await expect.poll(async () => {
+      if (preview.exitCode !== null) throw new Error(`Static preview exited early:\n${output.join('')}`);
+      try { return (await fetch(origin)).status; } catch { return 0; }
+    }, { timeout: 10_000 }).toBe(200);
+
+    const context = await browser.newContext();
+    const requests: { url: string; method: string; postData: string | null }[] = [];
+    context.on('request', (request) => requests.push({ url: request.url(), method: request.method(), postData: request.postData() }));
+    const page = await context.newPage();
+    await page.goto(`${origin}/?demo=1`);
+    await expect(page.getByRole('article', { name: 'Reflowed document' })).toContainText('QUIET READING ROUTINE', { timeout: 15_000 });
+    expect(requests.length).toBeGreaterThan(0);
+    expect(requests.every((request) => new URL(request.url).origin === origin)).toBe(true);
+    expect(requests.every((request) => request.method === 'GET' && request.postData === null)).toBe(true);
+    await context.close();
+  } finally {
+    preview.kill('SIGTERM');
+    await new Promise<void>((resolve) => {
+      if (preview.exitCode !== null) resolve();
+      else {
+        preview.once('exit', () => resolve());
+        setTimeout(() => { preview.kill('SIGKILL'); resolve(); }, 2_000);
+      }
+    });
+  }
+});
+
+test('@claim:artwork-provenance verifies the displayed artwork source and generation record', async ({ page }) => {
+  const [design, sourceRecordRaw, promptRecordRaw] = await Promise.all([
+    readFile('.factory/design.md', 'utf8'),
+    readFile('assets/src/reflow-gate.png.json', 'utf8'),
+    readFile('assets/src/reflow-gate.prompt.json', 'utf8')
+  ]);
+  const sourceRecord = JSON.parse(sourceRecordRaw) as { prompt: string; deployment: string; size: string; quality: string };
+  const promptRecord = JSON.parse(promptRecordRaw) as { asset: string; date: string; generator: string; prompt: string };
+
+  await Promise.all([
+    access('assets/src/reflow-gate.png'),
+    access('public/assets/reflow-gate-720.avif'),
+    access('public/assets/reflow-gate-1280.webp'),
+    access('public/assets/social-card.jpg')
+  ]);
+  expect(promptRecord.asset).toBe('reflow-gate');
+  expect(promptRecord.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  expect(promptRecord.generator).toContain('/opt/fleet/lib/gen-image.sh');
+  expect(sourceRecord.deployment).toBe('factory-image');
+  expect(sourceRecord.quality).toBe('high');
+  expect(sourceRecord.prompt).toBe(promptRecord.prompt);
+  expect(design).toContain('Original asset generated for this product');
+  expect(design).toContain('/opt/fleet/lib/gen-image.sh');
+  expect(design).toContain(promptRecord.date);
+  expect(design).toContain('reflow-gate');
+
+  await page.goto('/');
+  await expect(page.locator('.hero-art img')).toHaveAttribute('src', '/assets/reflow-gate-1280.jpg');
+  await expect(page.locator('footer')).toContainText('Original AI-generated artwork.');
 });
 
 test('@claim:private-local keeps the demo flow on the product origin', async ({ page }) => {

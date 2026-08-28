@@ -42,7 +42,7 @@ The Playwright version is pinned to the factory-provided browser version. Produc
 
 There are no analytics, trackers, cloud OCR calls, CDN scripts, or remote fonts. The `?demo=1` demo uses a separate `demo:pdf-flow-reader` IndexedDB database and never touches a regular library. See [the privacy policy](https://pdf-flow-reader.sociobot.in/privacy/) and [terms](https://pdf-flow-reader.sociobot.in/terms/).
 
-Every public reliance claim and its executable browser test lives in [`.factory/claims.json`](.factory/claims.json). The researched product scope lives in [`.factory/brief.json`](.factory/brief.json), the visual and asset rationale in [`.factory/design.md`](.factory/design.md), and verification notes in [`.factory/handoff.md`](.factory/handoff.md).
+See [`.factory/claims.json`](.factory/claims.json) for tested product claims. The researched product scope lives in [`.factory/brief.json`](.factory/brief.json), the visual and asset rationale in [`.factory/design.md`](.factory/design.md), and verification notes in [`.factory/handoff.md`](.factory/handoff.md).
 
 ## License
 
