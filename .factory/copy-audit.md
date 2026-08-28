@@ -34,7 +34,7 @@ The first screen states the job, audience, first action, its immediate result, a
 | --- | ---: | --- |
 | No API keys or backend are required. | 7 | Pass — `no-api-key-or-backend` |
 | See .factory/claims.json for tested product claims. | 6 | Pass — repository pointer, not a completeness assurance |
-| Read long PDFs as steady, adjustable prose without uploading them. | 9 | Pass — verb-first catalog line, 66 characters |
+| Read long PDFs in one adjustable reading column. | 8 | Pass — verb-first catalog line, 48 characters |
 
 The self-referential sentence “Every public reliance claim…” was removed. No audited sentence exceeds 22 words or uses a banned marketing term.
 

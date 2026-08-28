@@ -65,14 +65,14 @@
   {
     "id": "reader-adjustments",
     "claim": "Adjust text size, line spacing, word spacing, line width, typeface, and four contrast treatments.",
-    "where": "reader setup panel, landing how-it-works, README",
+    "where": "reader setup panel, landing how-it-works, README, catalog description",
     "test": "npx playwright test --grep @claim:reader-adjustments",
     "sandbox": "fresh browser context; open /?demo=1, operate every reading adjustment, and assert computed type, spacing, width, and all four named treatments"
   },
   {
     "id": "extraction-boundary",
     "claim": "Places selectable PDF text in one reading column without changing or certifying the source PDF.",
-    "where": "landing illustration caption, reader confidence details, terms page",
+    "where": "landing illustration caption, reader confidence details, terms page, catalog description",
     "test": "npx playwright test --grep @claim:extraction-boundary",
     "sandbox": "fresh browser context; hash the bundled source PDF before and after extraction, assert the reading column contains its text, and assert the no-repair/no-certification boundary"
   },

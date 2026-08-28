@@ -1,4 +1,4 @@
-# PDF Flow Reader — polish round 2 handoff
+# PDF Flow Reader — polish round 2 retry 2 handoff
 
 ## Status
 
@@ -17,19 +17,26 @@ Demo: <https://pdf-flow-reader.sociobot.in/?demo=1>
 - Updated the catalog description to a 66-character verb-first sentence.
 - Rechecked and retained every round 1 repair: first-screen wording, isolated `?demo=1`, storage reset, reader terminology, route focus/announcement, shared chrome, metadata, canonical URLs, mobile layout, and designed 404.
 
-Implementation commit: `bdba4fa` (`test: cover remaining public claims`).
+Round-two product repairs remain in `bdba4fa` and `833f3cb`. Retry 2 adds the
+CI safety repair in `619ee50123e719c4da5671b8c03b52fdf448ffb6`
+(`test: serialize browser checks in CI`): Playwright explicitly uses one worker
+when `CI=1`, preventing the prior multi-browser Chromium crash condition.
 
 ## Exact verification evidence
 
 ### Fresh GitHub clone
 
-Clone: `origin/main` at `bdba4fa`, installed with `npm ci` (80 packages added; 0 vulnerabilities).
+Clone: `/tmp/pdf-flow-reader-polish-2-final-dDzYk7` at
+`619ee50123e719c4da5671b8c03b52fdf448ffb6`; installed with
+`npm ci --include=dev` (80 packages added; 0 vulnerabilities). The explicit
+dev inclusion was needed because this worker's base environment omits dev
+dependencies from a plain install.
 
-- Every exact command in `.factory/claims.json` passed independently: 14 claim IDs × desktop/mobile = 28 passing project runs.
-- `npm test`: 15 unit tests passed; 48 browser checks passed; 2 expected desktop skips for mobile-only checks.
+- Every exact command in `.factory/claims.json` passed independently with `CI=1`: 14 claim IDs × desktop/mobile = 28 passing project runs.
+- `npm test` under `CI=1`: 15 unit tests passed; 48 browser checks passed; 2 expected desktop skips for mobile-only checks. Chromium ran with one worker and completed without SIGSEGV/browser-closed errors.
 - `npm run typecheck`: passed.
 - `npm run lint`: passed.
-- `npm run build`: passed and produced `dist/index.html`.
+- `npm run build`: passed and produced `dist/index.html`; `git diff --check` passed.
 - Initial JavaScript: 119.81 KB gzip (`main` 9.54 KB + lazy PDF module 110.27 KB). CSS: 4.95 KB gzip.
 
 ### Local production build
@@ -42,11 +49,11 @@ Clone: `origin/main` at `bdba4fa`, installed with `npm ci` (80 packages added; 0
 ### Deployment and cold live check
 
 - Deployed `dist/` with `/opt/fleet/lib/deploy-static.sh pdf-flow-reader dist`.
-- Azure Static Web Apps deployment ID: `37e72825-9623-4897-9f9a-ee701c4ae218`; production upload status: Succeeded.
-- Cold factory verifier passed Home, Demo, and Privacy with no console errors.
-- Full live Playwright suite: 48 passed; 2 expected desktop skips. This includes offline reload, demo database isolation/reset, privacy request tracing, axe, keyboard behavior, 390 px targets/overflow, route focus/announcement, titles/canonicals, shared legal chrome, and 404 recovery.
+- Azure Static Web Apps deployment ID: `d8d9feb1-feda-472d-8828-b7956e50ec38`; production upload status: Succeeded.
+- Cold factory verifier passed Home, Demo, and Privacy with no console errors. Evidence: `.factory/polish-2-artifacts/retry2-live-home/`, `.factory/polish-2-artifacts/retry2-live-demo/`, and `.factory/polish-2-artifacts/retry2-live-privacy/`.
+- Full live Playwright suite under `CI=1`/one worker: 48 passed; 2 expected desktop skips. This includes offline reload, demo database isolation/reset, privacy request tracing, axe, keyboard behavior, 390 px targets/overflow, route focus/announcement, titles/canonicals, shared legal chrome, and 404 recovery.
 - Live Lighthouse mobile: Performance 100, Accessibility 100, Best Practices 100, SEO 100; LCP 1.4 s, CLS 0, TBT 0 ms.
-- Route checks returned 200 for `/`, `/?demo=1`, `/demo/`, `/privacy/`, `/terms/`, and `/404/`; `/does-not-exist-polish-2` returned a real HTTP 404 with the designed page.
+- Route checks returned 200 for `/`, `/?demo=1`, `/demo/`, `/privacy/`, `/terms/`, and `/404/`; `/does-not-exist-polish-2-retry2` returned a real HTTP 404 with the designed page.
 - Production headers include CSP, HSTS, Referrer-Policy, Permissions-Policy, frame protection, and `X-Content-Type-Options`.
 - SHA-256 matched local and live Home HTML, main/shared JS, CSS, service worker, and manifest. See `.factory/polish-2-artifacts/deployment-identity.tsv`.
 - Screenshots and verifier reports: `.factory/polish-2-artifacts/live-home/`, `.factory/polish-2-artifacts/live-demo/`, and `.factory/polish-2-artifacts/live-privacy/`.

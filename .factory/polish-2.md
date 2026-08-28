@@ -26,3 +26,20 @@ Reviewed `.factory/review-2.md`, `.factory/review-1.md`, `.factory/polish-1.md`,
 - Deployment identity: six key local/live SHA-256 pairs match in `.factory/polish-2-artifacts/deployment-identity.tsv`.
 
 Result: every finding from both adversarial rounds is closed; nothing is deferred.
+
+## Retry 2 verification — 2026-08-28
+
+The controller reported that a prior full pass was interrupted by a Chromium
+SIGSEGV during the mobile keyboard-controls claim. The product changes above
+were retained. `playwright.config.ts` now explicitly uses one worker whenever
+`CI=1`, so a factory CI run cannot re-enable parallel Chromium workers.
+
+| Finding / acceptance item | Change retained or made | Fresh evidence |
+| --- | --- | --- |
+| F-1-1, F-2-1, F-2-2, F-2-3 | The complete 14-entry claim map remains present; catalog wording is now “Read long PDFs in one adjustable reading column,” mapped to `extraction-boundary` and `reader-adjustments`. | Fresh clone `/tmp/pdf-flow-reader-polish-2-final-dDzYk7`: every exact manifest grep command passed, 2 projects each (28 claim runs); `npm test` passed 15 unit tests and 48 browser tests with 2 expected mobile-only desktop skips. |
+| F-1-2 through F-1-7 | Route focus/live region, canonical 404 metadata, shared chrome, “reading place,” clear shortcuts, and the concrete local-reading heading remain unchanged. | Live serial browser suite passed; `retry2-live-home/`, `retry2-live-demo/`, and `retry2-live-privacy/verify.json` record no console errors and one h1/main on cold pages. |
+| Demo, privacy, offline, accessibility, mobile | Isolated `?demo=1`, banner/reset/start-real, local-only requests, service-worker offline reload, drawer/focus controls, and axe coverage remain unchanged. | Live serial suite includes `@claim:demo-sample`, `@claim:private-local`, `@claim:offline-reload`, keyboard, mobile, route, and axe tests; all passed under `CI=1` and one worker. |
+| Routing, metadata, legal links, and 404 | Existing real routes, metadata, shared legal chrome, CSP, and response override remain deployed. | Cold checks: Home, `?demo=1`, `/demo/`, `/privacy/`, `/terms/`, `/404/` returned 200; `/does-not-exist-polish-2-retry2` returned 404 with `Page not found — PDF Flow Reader`. Live: <https://pdf-flow-reader.sociobot.in/>. |
+
+Deployment: `d8d9feb1-feda-472d-8828-b7956e50ec38` (Succeeded). The repaired
+CI configuration is commit `619ee50123e719c4da5671b8c03b52fdf448ffb6`.
