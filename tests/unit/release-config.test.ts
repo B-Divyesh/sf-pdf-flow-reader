@@ -9,6 +9,7 @@ describe('release configuration regressions', () => {
     expect(config.globalHeaders['X-Frame-Options']).toBe('DENY');
     expect(config.routes.find((route: { route: string }) => route.route === '/assets/*').headers['Cache-Control']).toContain('immutable');
     expect(config.routes.find((route: { route: string }) => route.route === '/manifest.webmanifest').headers['Content-Type']).toBe('application/manifest+json');
+    expect(config.mimeTypes['.webmanifest']).toBe('application/manifest+json');
     expect(config.navigationFallback.exclude).toContain('/*');
     expect(config.responseOverrides['404']).toEqual({ rewrite: '/404/index.html', statusCode: 404 });
   });
