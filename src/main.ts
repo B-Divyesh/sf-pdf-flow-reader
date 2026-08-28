@@ -11,6 +11,8 @@ let recent: SavedDocument[] = [];
 let pendingFile: File | undefined;
 let saveTimer = 0;
 let activeBlock = 0;
+let readerScrollHandler: (() => void) | undefined;
+let ignoreScrollPositionUntil = 0;
 const demoMode = location.pathname.replace(/\/$/, '') === '/demo' || new URLSearchParams(location.search).get('demo') === '1';
 setDemoStorage(demoMode);
 
@@ -55,6 +57,7 @@ function shell(content: string) {
 }
 
 function homeView(error = '') {
+  resetReaderState();
   const resume = recent[0] ? `<section class="resume-strip" aria-labelledby="resume-title">
     <div><p class="eyebrow">Saved on this device</p><h3 id="resume-title">${escapeHtml(recent[0].name)}</h3><p>Page ${recent[0].blocks[recent[0].currentBlock]?.page || 1} of ${recent[0].pageCount} · ${timeAgo(recent[0].updatedAt)}</p></div>
     <button type="button" class="secondary-button" id="resume-button">Resume reading <span aria-hidden="true">→</span></button>
@@ -85,8 +88,9 @@ function homeView(error = '') {
 }
 
 function loadingView(file: File) {
+  resetReaderState();
   shell(`<main id="main" class="loading-main"><section class="loading-card" aria-labelledby="loading-title">
-    <p class="eyebrow">Reading on this device</p><h2 id="loading-title">Building a stable flow…</h2><p class="file-name">${escapeHtml(file.name)}</p>
+    <p class="eyebrow">Reading on this device</p><h1 id="loading-title">Building a stable flow…</h1><p class="file-name">${escapeHtml(file.name)}</p>
     <div class="progress-track" aria-hidden="true"><span id="progress-bar"></span></div><p id="progress-label" role="status" aria-live="polite">Opening the PDF…</p>
     <p class="muted">Long or image-heavy PDFs can take a moment. Nothing is uploaded.</p><button class="secondary-button" id="cancel-button" type="button">Cancel</button>
   </section></main>`);
@@ -94,6 +98,7 @@ function loadingView(file: File) {
 }
 
 function readerView(saved: SavedDocument, resumed = false) {
+  removeReaderScrollHandler();
   current = saved;
   activeBlock = Math.min(saved.currentBlock, saved.blocks.length - 1);
   const headings = saved.blocks.map((block, index) => ({ block, index })).filter(({ block }) => block.kind === 'heading');
@@ -232,7 +237,10 @@ function showPassword(message: string) {
 function bindReader(resumed: boolean) {
   if (!current) return;
   applySettings();
-  document.querySelector('#change-file')?.addEventListener('click', () => homeView());
+  document.querySelector('#change-file')?.addEventListener('click', async () => {
+    if (current) await saveDocument(current);
+    homeView();
+  });
   document.querySelector('#confidence-toggle')?.addEventListener('click', (event) => {
     const button = event.currentTarget as HTMLButtonElement; const details = document.querySelector<HTMLElement>('#confidence-details')!; details.hidden = !details.hidden; button.setAttribute('aria-expanded', String(!details.hidden));
   });
@@ -247,7 +255,8 @@ function bindReader(resumed: boolean) {
   const panelMedia = matchMedia('(max-width: 1100px)');
   panelMedia.addEventListener('change', syncPanelState);
   let scrollTimer = 0;
-  window.addEventListener('scroll', () => { window.clearTimeout(scrollTimer); scrollTimer = window.setTimeout(updatePositionFromScroll, 120); }, { passive: true });
+  readerScrollHandler = () => { window.clearTimeout(scrollTimer); scrollTimer = window.setTimeout(updatePositionFromScroll, 120); };
+  window.addEventListener('scroll', readerScrollHandler, { passive: true });
   if (resumed && current.currentBlock > 0) requestAnimationFrame(() => goToBlock(current!.currentBlock, false)); else updatePosition(0);
 }
 
@@ -286,12 +295,18 @@ function closePanel(id: string, restoreFocus = true) {
 }
 
 function goToBlock(index: number, focus = true) {
-  if (!current) return; activeBlock = Math.max(0, Math.min(index, current.blocks.length - 1));
-  const block = document.querySelector<HTMLElement>(`[data-block-index="${activeBlock}"]`)!;
-  block.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' }); if (focus) block.focus({ preventScroll: true }); updatePosition(activeBlock);
+  if (!current) return;
+  const targetIndex = Math.max(0, Math.min(index, current.blocks.length - 1));
+  const block = document.querySelector<HTMLElement>(`[data-block-index="${targetIndex}"]`);
+  if (!block) return;
+  updatePosition(targetIndex);
+  ignoreScrollPositionUntil = performance.now() + 500;
+  block.scrollIntoView({ behavior: 'instant', block: 'center' });
+  if (focus) block.focus({ preventScroll: true });
 }
 
 function updatePositionFromScroll() {
+  if (performance.now() < ignoreScrollPositionUntil) return;
   const blocks = [...document.querySelectorAll<HTMLElement>('[data-block-index]')]; if (!blocks.length) return;
   const target = blocks.reduce((closest, block) => Math.abs(block.getBoundingClientRect().top - innerHeight * .3) < Math.abs(closest.getBoundingClientRect().top - innerHeight * .3) ? block : closest);
   updatePosition(Number(target.dataset.blockIndex));
@@ -323,6 +338,17 @@ function applySettings() {
 }
 
 function scheduleSave() { if (!current) return; window.clearTimeout(saveTimer); saveTimer = window.setTimeout(async () => { if (!current) return; await saveDocument(current); const note = document.querySelector('#saved-note'); note?.classList.add('just-saved'); window.setTimeout(() => note?.classList.remove('just-saved'), 600); }, 250); }
+function removeReaderScrollHandler() {
+  if (readerScrollHandler) window.removeEventListener('scroll', readerScrollHandler);
+  readerScrollHandler = undefined;
+}
+function resetReaderState() {
+  removeReaderScrollHandler();
+  window.clearTimeout(saveTimer);
+  current = undefined;
+  activeBlock = 0;
+  ignoreScrollPositionUntil = 0;
+}
 function announce(message: string) { const region = document.querySelector('#live-status'); if (region) region.textContent = message; }
 function updateConnection() { const banner = document.querySelector<HTMLElement>('#connection-banner'); if (banner) banner.hidden = navigator.onLine; }
 

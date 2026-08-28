@@ -77,6 +77,9 @@ test('@claim:offline-reload app shell reloads offline after first visit', async 
   await expect(page.getByRole('heading', { name: /Reading reading-routine/i })).toBeVisible();
   await expect(page.getByRole('article', { name: 'Reflowed document' })).toContainText('QUIET READING ROUTINE');
   await expect(page.getByRole('status').filter({ hasText: 'offline' })).toBeVisible();
+  await page.goto('/?source=installed-v3');
+  await expect(page).toHaveTitle('PDF Flow Reader — read PDFs in a steady column');
+  await expect(page.getByRole('button', { name: 'Try it with sample data' })).toBeVisible();
 });
 
 test('@claim:demo-sample opens the bundled sample in an isolated demo library', async ({ page }) => {
@@ -119,10 +122,14 @@ test('@claim:private-local keeps the demo flow on the product origin', async ({ 
 test('@claim:keyboard-controls changes the sample reader with keys', async ({ page }) => {
   await page.goto('/demo/');
   await expect(page.getByRole('article', { name: 'Reflowed document' })).toBeVisible({ timeout: 15_000 });
-  await page.keyboard.press('j');
-  await expect(page.locator('[data-current="true"]')).not.toHaveAttribute('data-block-index', '0');
-  await page.keyboard.press('k');
-  await expect(page.locator('[data-current="true"]')).toHaveAttribute('data-block-index', '0');
+  for (let repetition = 0; repetition < 5; repetition += 1) {
+    await page.keyboard.press('j');
+    await expect(page.locator('[data-current="true"]')).toHaveAttribute('data-block-index', '1');
+    await page.waitForTimeout(150);
+    await expect(page.locator('[data-current="true"]')).toHaveAttribute('data-block-index', '1');
+    await page.keyboard.press('k');
+    await expect(page.locator('[data-current="true"]')).toHaveAttribute('data-block-index', '0');
+  }
   await page.keyboard.press(']');
   await expect(page.locator('#size-output')).toHaveText('24px');
   await page.keyboard.press('[');
@@ -180,6 +187,65 @@ test('@claim:local-data-control exports, erases, and imports the local library',
     };
   }));
   expect(savedCount).toBe(1);
+});
+
+test('rejects malformed branded imports and recovers from invalid legacy records', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Manage local data' }).click();
+  const malformed = Buffer.from(JSON.stringify({
+    product: 'pdf-flow-reader',
+    version: 1,
+    documents: [{ id: 'broken-record', blocks: [], settings: {} }]
+  }));
+  await page.locator('#import-input').setInputFiles({ name: 'malformed-library.json', mimeType: 'application/json', buffer: malformed });
+  await expect(page.getByRole('status').filter({ hasText: 'invalid saved document' })).toBeVisible();
+  await page.getByRole('dialog', { name: 'Local reading data' }).getByRole('button', { name: 'Close local data' }).click();
+  await page.reload();
+  await expect(page.getByRole('heading', { level: 1, name: /Read long PDFs/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Resume reading/ })).toHaveCount(0);
+
+  await page.evaluate(async () => new Promise<void>((resolve, reject) => {
+    const request = indexedDB.open('pdf-flow-reader');
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const transaction = request.result.transaction('documents', 'readwrite');
+      transaction.objectStore('documents').put({ id: 'legacy-broken-record', blocks: [], settings: {} });
+      transaction.oncomplete = () => { request.result.close(); resolve(); };
+      transaction.onerror = () => reject(transaction.error);
+    };
+  }));
+  await page.reload();
+  await expect(page.getByRole('heading', { level: 1, name: /Read long PDFs/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Manage local data' })).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('Open another clears reader shortcuts and produces no page errors', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()); });
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto('/demo/');
+  await expect(page.getByRole('article', { name: 'Reflowed document' })).toBeVisible({ timeout: 15_000 });
+  await page.getByRole('button', { name: 'Open another' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: /Read long PDFs/ })).toBeVisible();
+  await page.keyboard.press('j');
+  await page.keyboard.press('h');
+  await expect(page.getByRole('heading', { level: 1, name: /Read long PDFs/ })).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('PDF loading state keeps the page h1 semantic', async ({ page }) => {
+  await page.route('**/assets/pdf-*.js', async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    await route.continue();
+  });
+  await page.goto('/');
+  await page.locator('#pdf-input').setInputFiles({ name: 'loading-check.pdf', mimeType: 'application/pdf', buffer: await samplePdf() });
+  await expect(page.getByRole('heading', { level: 1, name: 'Building a stable flow…' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
+  await expect(page.getByRole('article', { name: 'Reflowed document' })).toBeVisible({ timeout: 15_000 });
 });
 
 test('@claim:stored-data-scope retains extracted reading data but no PDF bytes or password', async ({ page }) => {
@@ -286,12 +352,23 @@ test('mobile reading controls stay visible and all reported targets meet 44px', 
     page.locator('#previous-block'),
     page.locator('#next-block'),
     page.getByRole('link', { name: 'PDF Flow Reader home' }),
-    page.getByRole('link', { name: 'Demo', exact: true })
+    page.getByRole('link', { name: 'Demo', exact: true }),
+    page.locator('footer').getByRole('link', { name: 'Terms' })
   ]) {
     const box = await locator.boundingBox();
     expect(box?.width).toBeGreaterThanOrEqual(44);
     expect(box?.height).toBeGreaterThanOrEqual(44);
   }
+  await page.goto('/privacy/');
+  const contactBox = await page.getByRole('link', { name: 'sociobot.in' }).boundingBox();
+  expect(contactBox?.width).toBeGreaterThanOrEqual(44);
+  expect(contactBox?.height).toBeGreaterThanOrEqual(44);
+  await page.keyboard.press('Tab');
+  const skip = page.getByRole('link', { name: 'Skip to content' });
+  await expect(skip).toBeFocused();
+  const skipBox = await skip.boundingBox();
+  expect(skipBox?.width).toBeGreaterThanOrEqual(44);
+  expect(skipBox?.height).toBeGreaterThanOrEqual(44);
 });
 
 test('reader focus and dialogs expose visible accessible state', async ({ page }) => {

@@ -11,7 +11,8 @@ const assetFiles = (await walk('dist')).filter((file) => !file.endsWith('.map') 
 // Static hosts resolve directory URLs to index.html, while Cache Storage does not.
 // Precache both forms so /demo/ remains available after a first online visit.
 const routeAliases = assetFiles.filter((file) => file.endsWith('/index.html') && file !== '/index.html').map((file) => file.slice(0, -'index.html'.length));
-const files = ['/', ...assetFiles, ...routeAliases];
+const installedStartUrl = '/?source=installed-v3';
+const files = ['/', installedStartUrl, ...assetFiles, ...routeAliases];
 const digest = createHash('sha256');
 for (const file of assetFiles.sort()) {
   digest.update(file);

@@ -22,7 +22,7 @@ button, a, label[for] { -webkit-tap-highlight-color: transparent; }
 button { color: inherit; }
 a { color: var(--cobalt); text-underline-offset: 4px; text-decoration-thickness: 2px; }
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, [tabindex="-1"]:focus-visible { outline: 4px solid var(--cobalt); outline-offset: 4px; }
-.skip-link { position: fixed; z-index: 100; left: 16px; top: 8px; padding: 12px 16px; color: var(--paper); background: var(--ink); transform: translateY(-150%); }
+.skip-link { position: fixed; z-index: 100; left: 16px; top: 8px; display: inline-flex; min-width: 44px; min-height: 44px; align-items: center; padding: 12px 16px; color: var(--paper); background: var(--ink); transform: translateY(-150%); }
 .skip-link:focus { transform: translateY(0); }
 .sr-only, .visually-hidden-input { position: absolute!important; width: 1px!important; height: 1px!important; padding: 0!important; margin: -1px!important; overflow: hidden!important; clip: rect(0,0,0,0)!important; white-space: nowrap!important; border: 0!important; }
 .site-header { min-height: 68px; display: flex; align-items: center; gap: 24px; padding: 12px max(20px, env(safe-area-inset-right)) 12px max(20px, env(safe-area-inset-left)); border-bottom: var(--rule); background: var(--newsprint); position: relative; z-index: 20; }
@@ -83,7 +83,7 @@ svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width:
 .art-credit { color: var(--muted); }
 .loading-main { min-height: calc(100vh - 140px); display: grid; place-items: center; padding: 32px; background-image: linear-gradient(90deg, transparent 49.8%, rgba(23,23,20,.08) 50%, transparent 50.2%); background-size: 48px 48px; }
 .loading-card { width: min(620px,100%); padding: clamp(28px,6vw,64px); border: var(--rule); background: var(--paper); box-shadow: 10px 10px 0 var(--ink); }
-.loading-card h2 { margin: 0; font-size: clamp(2.5rem,6vw,5rem); line-height: .95; text-transform: uppercase; }
+.loading-card h1 { margin: 0; font-size: clamp(2.5rem,6vw,5rem); line-height: .95; text-transform: uppercase; }
 .file-name { font-weight: 900; word-break: break-word; }
 .progress-track { height: 24px; margin: 32px 0 12px; border: var(--rule); background: var(--newsprint); }
 .progress-track span { display: block; width: 5%; height: 100%; background: repeating-linear-gradient(135deg,var(--signal),var(--signal) 10px,var(--ink) 10px,var(--ink) 13px); transition: width 180ms; }
@@ -164,12 +164,12 @@ dialog input[type="password"] { width: 100%; min-height: 48px; border: 2px solid
 .field-error { min-height: 1.3em; color: var(--vermilion); font-weight: 800; }
 .legal-page { max-width: 780px; min-height: calc(100vh - 140px); padding: clamp(48px,8vw,100px) 24px; margin: 0 auto; }
 .legal-page h1 { margin: 0 0 40px; font-size: clamp(3rem,8vw,6.5rem); line-height: .9; letter-spacing: -.06em; text-transform: uppercase; }
-.legal-page h2 { margin-top: 40px; font-size: 24px; }.legal-page p{font:18px/1.65 Georgia,serif}
+.legal-page h2 { margin-top: 40px; font-size: 24px; }.legal-page p{font:18px/1.65 Georgia,serif}.legal-page a{display:inline-flex;min-width:44px;min-height:44px;align-items:center;justify-content:center}
 .not-found { min-height: calc(100vh - 68px); max-width: 760px; padding: clamp(64px,10vw,150px) 24px; margin: 0 auto; }
 .not-found h1 { margin: 0 0 24px; font-size: clamp(3rem,8vw,6rem); line-height: .9; text-transform: uppercase; }
 .not-found p { max-width: 52ch; font: 20px/1.55 Georgia,serif; }
 .not-found-actions { display: flex; flex-wrap: wrap; gap: 16px; }
-.site-footer a { display: inline-flex; min-height: 44px; align-items: center; }
+.site-footer a { display: inline-flex; min-width: 44px; min-height: 44px; align-items: center; justify-content: center; }
 .reader-shell[data-theme="dark"] .reader-center :focus-visible,
 .reader-shell[data-theme="contrast"] .reader-center :focus-visible { outline-color: var(--signal); box-shadow: 0 0 0 7px var(--ink); }
 @keyframes toast-in { from { opacity:0; transform:translateY(12px) } }

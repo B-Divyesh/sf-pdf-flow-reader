@@ -22,6 +22,10 @@ describe('release configuration regressions', () => {
     expect(buildScript).toContain("createHash('sha256')");
     expect(buildScript).toContain('routeAliases');
     expect(worker).toContain("'__CACHE_NAME__'");
+    expect(worker).toContain("ignoreSearch: event.request.mode === 'navigate'");
+    expect(buildScript).toContain("installedStartUrl = '/?source=installed-v3'");
+    const manifest = JSON.parse(await readFile('public/manifest.webmanifest', 'utf8'));
+    expect(manifest.start_url).toBe('/?source=installed-v3');
     expect(vite).toContain("demo: resolve(__dirname, 'demo/index.html')");
     expect(vite).toContain("notFound: resolve(__dirname, '404/index.html')");
   });
