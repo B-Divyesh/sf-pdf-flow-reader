@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="PDF Flow Reader mark">
+  <rect width="64" height="64" rx="4" fill="#f4ff57"/>
+  <path fill="#171714" d="M9 12h23v8H9zm0 16h23v8H9zm0 16h23v8H9zM38 8h17v48H38z"/>
+  <path fill="#f5f0e6" d="M43 15h7v34h-7z"/>
+</svg>
