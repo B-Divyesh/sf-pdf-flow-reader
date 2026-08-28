@@ -1,4 +1,4 @@
-const CACHE = 'pdf-flow-reader-v1';
+const CACHE = '__CACHE_NAME__';
 const PRECACHE = __PRECACHE__;
 
 self.addEventListener('install', (event) => {

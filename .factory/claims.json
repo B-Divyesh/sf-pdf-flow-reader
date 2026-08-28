@@ -1,0 +1,37 @@
+[
+  {
+    "id": "demo-sample",
+    "claim": "Try it with sample data",
+    "where": "landing primary action, Demo route, README",
+    "test": "npx playwright test --grep @claim:demo-sample",
+    "sandbox": "fresh browser context; open /demo/ and assert the bundled sample is extracted into the reader with the persistent demo banner"
+  },
+  {
+    "id": "private-local",
+    "claim": "Your PDF is processed on this device; no document upload or tracking request is made.",
+    "where": "landing, footer, privacy page, README",
+    "test": "npx playwright test --grep @claim:private-local",
+    "sandbox": "fresh browser context; run the sample flow while recording requests; assert every request is same-origin and no request carries document content"
+  },
+  {
+    "id": "offline-reload",
+    "claim": "Works offline after the first visit",
+    "where": "landing facts, README",
+    "test": "npx playwright test --grep @claim:offline-reload",
+    "sandbox": "fresh browser context; wait for service worker control, take the context offline, and reload the demo reader"
+  },
+  {
+    "id": "resume-place",
+    "claim": "Remembers your place on this device",
+    "where": "landing facts, README",
+    "test": "npx playwright test --grep @claim:resume-place",
+    "sandbox": "fresh normal browser context; upload the generated test PDF, move to a block, reload, and resume"
+  },
+  {
+    "id": "keyboard-controls",
+    "claim": "Use the reader with keyboard controls",
+    "where": "README",
+    "test": "npx playwright test --grep @claim:keyboard-controls",
+    "sandbox": "fresh browser context; open /demo/, operate block movement and text size with J and ] keys, and assert the visible results"
+  }
+]

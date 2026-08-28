@@ -1,10 +1,17 @@
-# PDF Flow Reader — verification handoff
+# PDF Flow Reader — repair handoff
 
-## Release status: **FAIL**
+## Release status: **READY FOR DEPLOYMENT**
 
-Independent verification of candidate `2daa73473e8ae03cc9e9913df33025d4c3d22bc6` against https://pdf-flow-reader.sociobot.in/ completed on 2026-08-28. The live deployment exactly matches the built candidate assets, and core PDF reading, offline reload, mobile, keyboard, axe, typecheck, build, and test checks pass. It is **not releasable** because `.factory/claims.json` is missing and there is no required one-click, isolated sample-data demo. The cold first screen also does not name the low-vision target reader.
+Repair commit is the current `main` revision (base verified candidate `2daa73473e8ae03cc9e9913df33025d4c3d22bc6`; verifier report `4570572ab9911612851506f06d719f7f6c30d772`).
 
-See [`.factory/verification.md`](verification.md) for exact commands, observed output, severity-ranked defects, and remediation. The existing builder notes below are historical implementation notes, not an acceptance result.
+All release-blocking verifier findings have been repaired without changing the local-first reader’s existing PDF flow:
+
+- Added `.factory/claims.json` with five executable `@claim:` Playwright checks: demo sample, local-only privacy, offline reload, local resume, and keyboard controls.
+- Added the direct `/demo/` (and `?demo=1`) sandbox, a bundled two-page realistic `reading-routine.pdf`, persistent demo banner, Reset demo, Start for real, and an isolated `demo:pdf-flow-reader` IndexedDB namespace. Demo data is cleared before leaving it.
+- Rewrote the first screen to name knowledge workers with low vision and use the plain job headline “Read long PDFs in a steady column.”
+- Added static deployment policy: CSP, Permissions-Policy, frame protection, cache rules, manifest MIME, designed 404 override, and a navigation fallback configuration that lets unknown paths return the 404 response.
+- Made the service-worker cache name a SHA-256-derived build identifier; it now precaches directory URLs such as `/demo/` as well as assets, so the demo reloads offline.
+- Added Demo navigation and Param Factory/version identity in the footer. Added copy and demo documentation.
 
 ## Built
 
@@ -25,17 +32,22 @@ Run from `/work/repo`:
 ```sh
 npm ci
 npm run typecheck
+npm run lint
 npm test
 npm run build
+npx playwright test --project=desktop
+npx playwright test --project=mobile
 ```
 
-- `npm test`: 3 unit tests and 8 Playwright tests pass across desktop Chromium and a 390 px-class mobile viewport. Coverage includes a real generated PDF, extraction, keyboard navigation, setting persistence, resume, invalid input, offline reload, responsive overflow, skip-link focus, and axe serious/critical checks on both empty and reading views.
-- `npm run build`: produces `dist/index.html`, `dist/privacy/index.html`, `dist/terms/index.html`, manifest, service worker, and all local assets.
-- Initial app code: 28.3 KB raw / 10.1 KB gzip JS; shared CSS: 17.8 KB raw / 4.7 KB gzip; no font payload. PDF.js is a post-selection lazy chunk (110.3 KB gzip), so it is outside first load.
-- Hero: 24 KB AVIF / 36 KB WebP at 720 px, 84 KB AVIF / 112 KB WebP at 1280 px.
-- Lighthouse mobile (local production preview, Chromium): Performance 99, Accessibility 100, Best Practices 100, SEO 100; LCP 2.0 s, TBT 0 ms, CLS 0, Speed Index 1.1 s.
-- Factory `verify-url.sh`: HTTP 200, title/lang/main present, one h1, all images have alt attributes, no unlabeled buttons, and no console errors (622 ms local load).
-- Manual visual review completed at 1440×1000 and 390×844 for the empty state, and at 1440×1000 for the populated reader. No horizontal overflow observed.
+- Clean `npm ci`: passed, 80 packages installed, 0 vulnerabilities.
+- `npm run typecheck`, `npm run lint`, and `npm run test:unit`: passed (5 unit tests).
+- Desktop and 390×844 mobile Playwright: **7/7 each** passed. This includes normal upload/extraction, invalid PDF recovery, resume/settings, skip link, overflow, keyboard, offline demo reload, isolated storage, reset/start-real, request interception, and axe serious/critical checks on empty and reader views.
+- Each claim command in `.factory/claims.json` targets exactly one observable `@claim:` test; the five tests passed in both browser projects from fresh contexts.
+- `npm run build`: passed and produced `dist/` with `/demo/`, `/privacy/`, `/terms/`, `/404/`, `staticwebapp.config.json`, sample PDF, manifest, and the generated cache-versioned service worker.
+- Initial main JavaScript is 29.92 KB raw / 10.54 KB gzip; initial CSS is 18.72 KB raw / 4.86 KB gzip; no font payload. PDF.js remains lazy after opening a file (110.27 KB gzip).
+- Lighthouse mobile on local production preview `/demo/`: Performance **99**, Accessibility **100**, LCP **2.0 s**, CLS **0** (`CHROME_PATH=…chrome-headless-shell … --chrome-flags='--no-sandbox'`).
+- `/opt/fleet/lib/verify-url.sh http://127.0.0.1:4173/demo/`: HTTP 200; title, `lang`, one h1, `<main>`, image alts, button labels, and console all pass (789 ms local load). The provided Playwright Axe integration passes with no serious or critical violations; standalone `axe-cli` could not start without `--no-sandbox` in this container.
+- The response policy and 404/cache/manifest/service-worker rules are regression-tested by `tests/unit/release-config.test.ts`; live hosting headers must be rechecked immediately after deployment because Vite preview does not apply Static Web Apps rules.
 
 ## Known gaps / honest limits
 
@@ -43,10 +55,11 @@ npm run build
 - Extraction cannot reliably reconstruct every multi-column layout, table, equation, footnote, or tagged reading order. The confidence panel makes this limitation visible; the app does not claim WCAG remediation or certification.
 - The original PDF is not retained, by design. Resume uses locally stored extracted text, so comparison against the source requires reopening it in another viewer.
 - Local processing is capped at 100 MB to reduce browser memory risk.
-- Lighthouse was measured against the empty state on a local preview; device and hosting conditions will vary.
+- Lighthouse was measured against the demo on a local production preview; device and hosting conditions will vary.
 
 ## Next steps
 
 - Moderate with low-vision users against the stated 8-of-10 resume/task benchmark.
 - Add opt-in, on-device OCR only if a dependable offline model fits the performance and privacy budgets.
 - Add a side-by-side original-page preview only if testing shows it improves confidence without destabilizing reading.
+- Post-deploy: run `verify-url.sh`, inspect live response headers and `/missing-page` status, and repeat the demo offline/update smoke test against https://pdf-flow-reader.sociobot.in/.

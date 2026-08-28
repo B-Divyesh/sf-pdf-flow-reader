@@ -1,7 +1,9 @@
 import './style.css';
 import { cancelExtraction, extractPdf, ReaderError } from './pdf';
-import { clearDocuments, deleteDocument, exportLibrary, getRecentDocuments, importLibrary, saveDocument } from './db';
+import { clearDocuments, deleteDocument, exportLibrary, getRecentDocuments, importLibrary, saveDocument, setDemoStorage } from './db';
 import { defaultSettings, type ReaderSettings, type SavedDocument } from './types';
+
+declare const __APP_VERSION__: string;
 
 const app = document.querySelector<HTMLElement>('#app')!;
 let current: SavedDocument | undefined;
@@ -9,6 +11,8 @@ let recent: SavedDocument[] = [];
 let pendingFile: File | undefined;
 let saveTimer = 0;
 let activeBlock = 0;
+const demoMode = location.pathname.replace(/\/$/, '') === '/demo' || new URLSearchParams(location.search).get('demo') === '1';
+setDemoStorage(demoMode);
 
 const icons = {
   upload: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 16V4m0 0L7 9m5-5 5 5M4 15v5h16v-5"/></svg>',
@@ -26,8 +30,9 @@ const confidenceLabel = (score: number) => score >= 80 ? 'High confidence' : sco
 
 function header() {
   return `<header class="site-header">
-    <a class="brand" href="/" aria-label="PDF Flow Reader home"><img src="/assets/icon.svg" width="36" height="36" alt=""><h1>PDF FLOW READER</h1></a>
+    <a class="brand" href="/" aria-label="PDF Flow Reader home"><img src="/assets/icon.svg" width="36" height="36" alt=""><span>PDF FLOW READER</span></a>
     <p class="local-note"><span aria-hidden="true">●</span> Local only</p>
+    <nav class="site-nav" aria-label="Primary"><a href="/demo/">Demo</a><a href="/privacy/">Privacy</a></nav>
     <div class="header-actions">
       <button class="text-button" id="shortcut-button" type="button" aria-haspopup="dialog"><kbd>?</kbd> Shortcuts</button>
       <button class="text-button" id="data-button" type="button" aria-haspopup="dialog">Manage local data</button>
@@ -36,11 +41,12 @@ function header() {
 }
 
 function footer() {
-  return `<footer class="site-footer"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><span>No upload. No tracking. Free.</span><span class="art-credit">Original AI-generated artwork.</span></footer>`;
+  return `<footer class="site-footer"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><span>No upload. No tracking.</span><span>Built by Param Factory · v${__APP_VERSION__}</span><span class="art-credit">Original AI-generated artwork.</span></footer>`;
 }
 
 function shell(content: string) {
-  app.innerHTML = `${header()}<div id="connection-banner" class="connection-banner" role="status" hidden>You’re offline. Saved reading and new local PDFs still work.</div>${content}${footer()}
+  const demoBanner = demoMode ? `<aside class="demo-banner" aria-label="Demo controls"><strong>Demo — sample data, nothing is saved to your real library.</strong><div><button class="text-button" id="reset-demo" type="button">Reset demo</button><button class="secondary-button" id="start-real" type="button">Start for real</button></div></aside>` : '';
+  app.innerHTML = `${header()}<div id="connection-banner" class="connection-banner" role="status" hidden>You’re offline. Saved reading and new local PDFs still work.</div>${demoBanner}${content}${footer()}
   <div id="live-status" class="sr-only" aria-live="polite"></div>
   <div id="update-toast" class="toast" role="status" hidden><span>An app update is ready.</span><button type="button" id="reload-button">Reload</button></div>
   ${dialogs()}`;
@@ -57,12 +63,13 @@ function homeView(error = '') {
     <section class="hero">
       <div class="hero-copy">
         <p class="eyebrow"><span>01</span> A steadier way through PDFs</p>
-        <h2>From rigid pages<br>to readable <mark>flow.</mark></h2>
-        <p class="lede">Open a PDF and read its selectable text as one calm column. Adjust the words—not your eyes.</p>
+        <h1>Read long PDFs<br>in a steady <mark>column.</mark></h1>
+        <p class="lede">For knowledge workers with low vision who need selectable PDF text in a stable, adjustable reading view.</p>
         <div class="upload-zone" id="drop-zone">
           <input id="pdf-input" type="file" accept="application/pdf,.pdf" class="visually-hidden-input" aria-label="PDF file" tabindex="-1">
-          <button class="primary-button" id="choose-pdf" type="button">${icons.upload}<span>Choose a PDF</span></button>
-          <p>or drop one here · processed on this device</p>
+          <button class="primary-button" id="try-demo" type="button">Try it with sample data</button>
+          <button class="secondary-button" id="choose-pdf" type="button">${icons.upload}<span>Choose a PDF</span></button>
+          <p>The sample opens now. Your PDF is processed on this device.</p>
         </div>
         ${error ? `<div class="error-box" role="alert"><strong>Couldn’t open that PDF.</strong><span>${escapeHtml(error)}</span><button class="link-button" type="button" id="retry-button">Try another file</button></div>` : ''}
         <ul class="trust-list" aria-label="Reader features"><li><strong>01</strong> No upload</li><li><strong>02</strong> Remembers your place</li><li><strong>03</strong> Works offline</li></ul>
@@ -91,13 +98,14 @@ function readerView(saved: SavedDocument, resumed = false) {
   activeBlock = Math.min(saved.currentBlock, saved.blocks.length - 1);
   const headings = saved.blocks.map((block, index) => ({ block, index })).filter(({ block }) => block.kind === 'heading');
   shell(`<main id="main" class="reader-shell" data-theme="${saved.settings.theme}">
+    <h1 class="sr-only">Reading ${escapeHtml(saved.name)}</h1>
     <nav class="outline-panel" id="outline-panel" aria-label="Document headings"><div class="panel-heading"><div><p class="eyebrow">Document map</p><h2>Headings</h2></div><button class="icon-button panel-close" data-close-panel="outline-panel" aria-label="Close headings">${icons.close}</button></div>
       ${headings.length ? `<ol class="heading-list">${headings.map(({ block, index }) => `<li><button type="button" data-block="${index}"><span>${String(block.page).padStart(2, '0')}</span>${escapeHtml(block.text)}</button></li>`).join('')}</ol>` : '<div class="panel-empty"><strong>No headings detected</strong><p>Use J and K to move paragraph by paragraph.</p></div>'}
     </nav>
     <section class="reader-center">
       <div class="reader-toolbar" aria-label="Reading tools"><button class="toolbar-button" id="outline-button" type="button" aria-label="Headings" aria-controls="outline-panel" aria-expanded="false">${icons.menu}<span>Headings</span></button><div class="doc-meta"><strong>${escapeHtml(saved.name)}</strong><span>${saved.pageCount} pages · ${saved.blocks.length} blocks</span></div><button class="toolbar-button" id="settings-button" type="button" aria-label="Reading setup" aria-controls="settings-panel" aria-expanded="false">${icons.tune}<span>Reading setup</span></button><button class="secondary-button change-file" id="change-file" type="button">Open another</button></div>
       <div class="confidence ${saved.confidence < 55 ? 'low' : ''}" role="note"><button type="button" id="confidence-toggle" aria-expanded="false"><span class="confidence-icon" aria-hidden="true">!</span><span><strong>${confidenceLabel(saved.confidence)}</strong><small>Extraction estimate · check against the source when meaning matters</small></span><span aria-hidden="true">＋</span></button><div id="confidence-details" hidden><p>Flow Reader adapts extracted text; it does not repair or certify the PDF.</p><ul>${saved.confidenceNotes.map((note) => `<li>${escapeHtml(note)}</li>`).join('')}</ul></div></div>
-      <article class="reading-plane" id="reading-plane" aria-label="Reflowed document" style="${settingsStyle(saved.settings)}">${saved.blocks.map((block, index) => block.kind === 'heading' ? `<h${block.level || 3} id="${block.id}" data-block-index="${index}" tabindex="-1"><span class="page-tag">Page ${block.page}</span>${escapeHtml(block.text)}</h${block.level || 3}>` : `<p id="${block.id}" data-block-index="${index}" tabindex="-1">${escapeHtml(block.text)}</p>`).join('')}</article>
+      <article class="reading-plane" id="reading-plane" aria-label="Reflowed document" style="${settingsStyle(saved.settings)}">${saved.blocks.map((block, index) => block.kind === 'heading' ? `<h${Math.max(2, Math.min(3, block.level || 3))} id="${block.id}" data-block-index="${index}" tabindex="-1"><span class="page-tag">Page ${block.page}</span>${escapeHtml(block.text)}</h${Math.max(2, Math.min(3, block.level || 3))}>` : `<p id="${block.id}" data-block-index="${index}" tabindex="-1">${escapeHtml(block.text)}</p>`).join('')}</article>
       <div class="position-bar" aria-label="Reading position"><span id="position-text">Page ${saved.blocks[activeBlock]?.page || 1} of ${saved.pageCount}</span><div><button type="button" id="previous-block" aria-label="Previous paragraph">K ↑</button><button type="button" id="next-block" aria-label="Next paragraph">J ↓</button></div></div>
     </section>
     <aside class="settings-panel" id="settings-panel" aria-label="Reading setup"><div class="panel-heading"><div><p class="eyebrow">Make it yours</p><h2>Reading setup</h2></div><button class="icon-button panel-close" data-close-panel="settings-panel" aria-label="Close reading setup">${icons.close}</button></div>${settingsControls(saved.settings)}</aside>
@@ -133,6 +141,8 @@ function bindShared() {
   document.querySelector('#shortcut-button')?.addEventListener('click', () => shortcut.showModal());
   document.querySelector('#data-button')?.addEventListener('click', () => data.showModal());
   document.querySelector('#reload-button')?.addEventListener('click', () => location.reload());
+  document.querySelector('#reset-demo')?.addEventListener('click', resetDemo);
+  document.querySelector('#start-real')?.addEventListener('click', async () => { await clearDocuments(); location.assign('/'); });
   document.querySelector('#export-button')?.addEventListener('click', async () => {
     const json = await exportLibrary();
     const url = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
@@ -155,6 +165,7 @@ function bindShared() {
 function bindHome() {
   const input = document.querySelector<HTMLInputElement>('#pdf-input')!;
   document.querySelector('#choose-pdf')?.addEventListener('click', () => input.click());
+  document.querySelector('#try-demo')?.addEventListener('click', () => location.assign('/demo/'));
   input.addEventListener('change', () => input.files?.[0] && openFile(input.files[0]));
   const drop = document.querySelector<HTMLElement>('#drop-zone')!;
   for (const eventName of ['dragenter', 'dragover']) drop.addEventListener(eventName, (event) => { event.preventDefault(); drop.classList.add('is-dragging'); });
@@ -162,6 +173,23 @@ function bindHome() {
   drop.addEventListener('drop', (event) => { const file = (event as DragEvent).dataTransfer?.files[0]; if (file) openFile(file); });
   document.querySelector('#retry-button')?.addEventListener('click', () => input.click());
   document.querySelector('#resume-button')?.addEventListener('click', () => recent[0] && readerView(recent[0], true));
+}
+
+async function openSample() {
+  try {
+    const response = await fetch('/samples/reading-routine.pdf');
+    if (!response.ok) throw new Error('The sample PDF could not be loaded.');
+    await openFile(new File([await response.blob()], 'reading-routine.pdf', { type: 'application/pdf' }));
+  } catch (error) {
+    homeView(error instanceof Error ? error.message : 'The sample PDF could not be loaded.');
+  }
+}
+
+async function resetDemo() {
+  await clearDocuments();
+  recent = [];
+  current = undefined;
+  await openSample();
 }
 
 async function openFile(file: File, password?: string) {
@@ -272,7 +300,12 @@ window.addEventListener('keydown', (event) => {
 
 async function boot() {
   try { recent = await getRecentDocuments(); } catch { recent = []; }
-  homeView();
+  if (demoMode) {
+    document.title = 'Demo — PDF Flow Reader';
+    await resetDemo();
+  } else {
+    homeView();
+  }
   if ('serviceWorker' in navigator) {
     const registration = await navigator.serviceWorker.register('/sw.js');
     if (registration.waiting) document.querySelector<HTMLElement>('#update-toast')!.hidden = false;

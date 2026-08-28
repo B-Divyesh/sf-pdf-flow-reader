@@ -5,12 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node scripts/build-sw.mjs",
+    "build": "vite build && node scripts/build-sw.mjs && cp staticwebapp.config.json dist/",
     "preview": "vite preview --host 127.0.0.1",
     "test": "npm run test:unit && npm run test:e2e",
     "test:unit": "vitest run tests/unit",
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit",
     "assets": "node scripts/optimize-assets.mjs"
   },
   "dependencies": {

@@ -1,12 +1,21 @@
 import type { SavedDocument } from './types';
 
-const DB_NAME = 'pdf-flow-reader';
+const REAL_DB_NAME = 'pdf-flow-reader';
+const DEMO_DB_NAME = 'demo:pdf-flow-reader';
 const STORE = 'documents';
 const DB_VERSION = 1;
+let demoMode = false;
+
+/** Keep the sample reader completely separate from a visitor's saved library. */
+export function setDemoStorage(enabled: boolean) {
+  demoMode = enabled;
+}
+
+export const storageDatabaseName = () => demoMode ? DEMO_DB_NAME : REAL_DB_NAME;
 
 function openDatabase(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    const request = indexedDB.open(storageDatabaseName(), DB_VERSION);
     request.onupgradeneeded = () => {
       const db = request.result;
       if (!db.objectStoreNames.contains(STORE)) {
