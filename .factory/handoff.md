@@ -1,4 +1,10 @@
-# PDF Flow Reader — handoff
+# PDF Flow Reader — verification handoff
+
+## Release status: **FAIL**
+
+Independent verification of candidate `2daa73473e8ae03cc9e9913df33025d4c3d22bc6` against https://pdf-flow-reader.sociobot.in/ completed on 2026-08-28. The live deployment exactly matches the built candidate assets, and core PDF reading, offline reload, mobile, keyboard, axe, typecheck, build, and test checks pass. It is **not releasable** because `.factory/claims.json` is missing and there is no required one-click, isolated sample-data demo. The cold first screen also does not name the low-vision target reader.
+
+See [`.factory/verification.md`](verification.md) for exact commands, observed output, severity-ranked defects, and remediation. The existing builder notes below are historical implementation notes, not an acceptance result.
 
 ## Built
 
