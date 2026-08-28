@@ -1,0 +1,4 @@
+public/assets/icon-192.png PNG 192x192 192x192+0+0 8-bit sRGB 1804B 0.000u 0:00.000
+public/assets/icon-512.png PNG 512x512 512x512+0+0 8-bit sRGB 10044B 0.000u 0:00.000
+public/assets/icon-maskable-512.png PNG 512x512 512x512+0+0 8-bit sRGB 8287B 0.000u 0:00.000
+public/assets/social-card.jpg JPEG 1200x630 1200x630+0+0 8-bit sRGB 158953B 0.000u 0:00.001

@@ -1,0 +1,108 @@
+{
+  "/": [
+    {
+      "tag": "A",
+      "name": "Skip to reader",
+      "width": 132,
+      "height": 42
+    },
+    {
+      "tag": "INPUT",
+      "name": "PDF file",
+      "width": 1,
+      "height": 1
+    },
+    {
+      "tag": "A",
+      "name": "Terms",
+      "width": 38,
+      "height": 44
+    }
+  ],
+  "/demo/": [
+    {
+      "tag": "A",
+      "name": "Skip to reader",
+      "width": 132,
+      "height": 42
+    },
+    {
+      "tag": "INPUT",
+      "name": "",
+      "width": 13,
+      "height": 13
+    },
+    {
+      "tag": "INPUT",
+      "name": "",
+      "width": 13,
+      "height": 13
+    },
+    {
+      "tag": "INPUT",
+      "name": "",
+      "width": 13,
+      "height": 13
+    },
+    {
+      "tag": "INPUT",
+      "name": "",
+      "width": 13,
+      "height": 13
+    },
+    {
+      "tag": "A",
+      "name": "Terms",
+      "width": 38,
+      "height": 44
+    }
+  ],
+  "/privacy/": [
+    {
+      "tag": "A",
+      "name": "Skip to content",
+      "width": 138,
+      "height": 42
+    },
+    {
+      "tag": "A",
+      "name": "sociobot.in",
+      "width": 80,
+      "height": 20
+    },
+    {
+      "tag": "A",
+      "name": "Terms",
+      "width": 38,
+      "height": 44
+    }
+  ],
+  "/terms/": [
+    {
+      "tag": "A",
+      "name": "Skip to content",
+      "width": 138,
+      "height": 42
+    },
+    {
+      "tag": "A",
+      "name": "Terms",
+      "width": 38,
+      "height": 44
+    }
+  ],
+  "/does-not-exist-qa": [
+    {
+      "tag": "A",
+      "name": "Skip to content",
+      "width": 138,
+      "height": 42
+    },
+    {
+      "tag": "A",
+      "name": "Terms",
+      "width": 38,
+      "height": 44
+    }
+  ]
+}

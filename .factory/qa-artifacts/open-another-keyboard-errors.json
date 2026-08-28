@@ -1,0 +1,14 @@
+{
+  "before": {
+    "h1": "READ LONG PDFS\nIN A STEADY COLUMN.",
+    "errors": []
+  },
+  "after": {
+    "h1": "READ LONG PDFS\nIN A STEADY COLUMN.",
+    "errors": [
+      "TypeError: Cannot read properties of null (reading 'scrollIntoView')",
+      "TypeError: Cannot read properties of null (reading 'classList')"
+    ],
+    "chooseVisible": true
+  }
+}

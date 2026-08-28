@@ -1,0 +1,10 @@
+{
+  "performance": 99,
+  "accessibility": 100,
+  "bestPractices": 100,
+  "FCP": 1509.457375,
+  "LCP": 1961.9317999999998,
+  "TBT": 71,
+  "CLS": 0,
+  "transfer": 135591
+}

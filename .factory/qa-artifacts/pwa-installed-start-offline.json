@@ -1,0 +1,16 @@
+{
+  "before": {
+    "controller": true,
+    "caches": [
+      "pdf-flow-reader-a271f7ea36a4"
+    ]
+  },
+  "after": {
+    "url": "https://pdf-flow-reader.sociobot.in/?source=installed-v2",
+    "title": "Offline — PDF Flow Reader",
+    "h1": [
+      "The network is out.Your reading isn’t."
+    ],
+    "body": "OFFLINE / LOCAL\n\nThe network is out.\nYour reading isn’t.\n\nReturn to the reader to open a PDF or resume text saved on this device.\n\nOpen PDF Flow Reader"
+  }
+}

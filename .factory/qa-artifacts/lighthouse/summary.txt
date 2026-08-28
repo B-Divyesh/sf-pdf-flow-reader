@@ -1,0 +1,22 @@
+{
+  "name": "local-demo",
+  "performance": 87,
+  "accessibility": 100,
+  "bestPractices": 100,
+  "FCP": 1532.143,
+  "LCP": 1956.6288,
+  "TBT": 470.5142000000002,
+  "CLS": 0,
+  "transfer": 135591
+}
+{
+  "name": "live-demo",
+  "performance": 100,
+  "accessibility": 100,
+  "bestPractices": 100,
+  "FCP": 1203.2775000000001,
+  "LCP": 1653.2775000000001,
+  "TBT": 13.5,
+  "CLS": 0,
+  "transfer": 134682
+}

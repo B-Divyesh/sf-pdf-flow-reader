@@ -1,0 +1,544 @@
+{
+  "generatedAt": "2026-08-28T12:35:39.400Z",
+  "checks": [
+    {
+      "name": "local: cold first screen desktop",
+      "status": "PASS",
+      "durationMs": 1090,
+      "evidence": {
+        "title": "PDF Flow Reader — read PDFs in a steady column",
+        "h1": "READ LONG PDFS\nIN A STEADY COLUMN.",
+        "lede": "For knowledge workers with low vision who need selectable PDF text in a stable, adjustable reading view.",
+        "firstActions": [
+          "Try it with sample data",
+          "Choose a PDF"
+        ],
+        "facts": [
+          "01 No upload",
+          "02 Remembers your place",
+          "03 Works offline"
+        ],
+        "h1Count": 1,
+        "mainCount": 1,
+        "lang": "en",
+        "horizontalOverflow": false
+      }
+    },
+    {
+      "name": "local: demo privacy, semantics and axe",
+      "status": "PASS",
+      "durationMs": 2376,
+      "evidence": {
+        "semantics": {
+          "title": "Demo — PDF Flow Reader",
+          "h1Count": 1,
+          "mainCount": 1,
+          "banner": "Demo — sample data, nothing is saved to your real library.Reset demoStart for real",
+          "blocks": 10,
+          "headings": 2,
+          "confidence": "!High confidenceExtraction estimate · check against the source when meaning matters＋Flow Reader adapts extracted text; it does not repair or certify the PDF.Text volume, character decoding, and paragraph grouping look consistent."
+        },
+        "databases": [
+          "demo:pdf-flow-reader"
+        ],
+        "requestCount": 8,
+        "requestPaths": [
+          "/demo/",
+          "/assets/style-Ciou-HfS.js",
+          "/assets/main-DGN0bSZM.js",
+          "/assets/style-BBGwla8d.css",
+          "/samples/reading-routine.pdf",
+          "/assets/icon.svg",
+          "/assets/pdf-Cv4ISMMC.js",
+          "/assets/pdf.worker.min-r-TJsTTt.mjs"
+        ],
+        "severe": []
+      }
+    },
+    {
+      "name": "local: 390px keyboard, drawers, focus and reduced motion",
+      "status": "PASS",
+      "durationMs": 1235,
+      "evidence": {
+        "initial": {
+          "overflow": false,
+          "outlineInert": true,
+          "settingsInert": true,
+          "nextBox": {
+            "x": 296,
+            "y": 778,
+            "width": 72,
+            "height": 44,
+            "top": 778,
+            "right": 368,
+            "bottom": 822,
+            "left": 296
+          },
+          "previousText": "Previous ↑",
+          "nextText": "Next ↓",
+          "panelTransition": "1e-05s",
+          "markerAnimation": "1e-05s"
+        },
+        "restored": true,
+        "focus": {
+          "text": "Reading setup",
+          "outlineColor": "rgb(24, 68, 214)",
+          "outlineWidth": "4px",
+          "outlineStyle": "solid",
+          "focusVisible": true
+        },
+        "visited": [
+          {
+            "tag": "A",
+            "id": "",
+            "text": "Skip to reader",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "text": "PDF FLOW READER",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "text": "Demo",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "data-button",
+            "text": "Manage local data",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "reset-demo",
+            "text": "Reset demo",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "start-real",
+            "text": "Start for real",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "outline-button",
+            "text": "Headings",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "settings-button",
+            "text": "Reading setup",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "change-file",
+            "text": "Open another",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "confidence-toggle",
+            "text": "!High confidenceExtraction estimate · check agains",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "previous-block",
+            "text": "Previous ↑",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "next-block",
+            "text": "Next ↓",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "text": "Privacy",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "text": "Terms",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BODY",
+            "id": "",
+            "text": "Skip to reader PDF FLOW READER ● Local only DemoPr",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "text": "Skip to reader",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "text": "PDF FLOW READER",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "text": "Demo",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "data-button",
+            "text": "Manage local data",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "reset-demo",
+            "text": "Reset demo",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "start-real",
+            "text": "Start for real",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "outline-button",
+            "text": "Headings",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "settings-button",
+            "text": "Reading setup",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "change-file",
+            "text": "Open another",
+            "hiddenPanel": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "local: service worker controlled offline demo reload",
+      "status": "PASS",
+      "durationMs": 1059,
+      "evidence": {
+        "before": {
+          "controlled": true,
+          "caches": [
+            "pdf-flow-reader-a271f7ea36a4"
+          ],
+          "registrations": 1
+        },
+        "after": {
+          "title": "Demo — PDF Flow Reader",
+          "sample": true,
+          "offlineBanner": true
+        }
+      }
+    },
+    {
+      "name": "live: cold first screen desktop",
+      "status": "PASS",
+      "durationMs": 903,
+      "evidence": {
+        "title": "PDF Flow Reader — read PDFs in a steady column",
+        "h1": "READ LONG PDFS\nIN A STEADY COLUMN.",
+        "lede": "For knowledge workers with low vision who need selectable PDF text in a stable, adjustable reading view.",
+        "firstActions": [
+          "Try it with sample data",
+          "Choose a PDF"
+        ],
+        "facts": [
+          "01 No upload",
+          "02 Remembers your place",
+          "03 Works offline"
+        ],
+        "h1Count": 1,
+        "mainCount": 1,
+        "lang": "en",
+        "horizontalOverflow": false
+      }
+    },
+    {
+      "name": "live: demo privacy, semantics and axe",
+      "status": "PASS",
+      "durationMs": 2500,
+      "evidence": {
+        "semantics": {
+          "title": "Demo — PDF Flow Reader",
+          "h1Count": 1,
+          "mainCount": 1,
+          "banner": "Demo — sample data, nothing is saved to your real library.Reset demoStart for real",
+          "blocks": 10,
+          "headings": 2,
+          "confidence": "!High confidenceExtraction estimate · check against the source when meaning matters＋Flow Reader adapts extracted text; it does not repair or certify the PDF.Text volume, character decoding, and paragraph grouping look consistent."
+        },
+        "databases": [
+          "demo:pdf-flow-reader"
+        ],
+        "requestCount": 8,
+        "requestPaths": [
+          "/demo/",
+          "/assets/style-Ciou-HfS.js",
+          "/assets/main-DGN0bSZM.js",
+          "/assets/style-BBGwla8d.css",
+          "/samples/reading-routine.pdf",
+          "/assets/icon.svg",
+          "/assets/pdf-Cv4ISMMC.js",
+          "/assets/pdf.worker.min-r-TJsTTt.mjs"
+        ],
+        "severe": []
+      }
+    },
+    {
+      "name": "live: 390px keyboard, drawers, focus and reduced motion",
+      "status": "PASS",
+      "durationMs": 1511,
+      "evidence": {
+        "initial": {
+          "overflow": false,
+          "outlineInert": true,
+          "settingsInert": true,
+          "nextBox": {
+            "x": 296,
+            "y": 778,
+            "width": 72,
+            "height": 44,
+            "top": 778,
+            "right": 368,
+            "bottom": 822,
+            "left": 296
+          },
+          "previousText": "Previous ↑",
+          "nextText": "Next ↓",
+          "panelTransition": "1e-05s",
+          "markerAnimation": "1e-05s"
+        },
+        "restored": true,
+        "focus": {
+          "text": "Reading setup",
+          "outlineColor": "rgb(24, 68, 214)",
+          "outlineWidth": "4px",
+          "outlineStyle": "solid",
+          "focusVisible": true
+        },
+        "visited": [
+          {
+            "tag": "A",
+            "id": "",
+            "text": "Skip to reader",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "text": "PDF FLOW READER",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "text": "Demo",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "data-button",
+            "text": "Manage local data",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "reset-demo",
+            "text": "Reset demo",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "start-real",
+            "text": "Start for real",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "outline-button",
+            "text": "Headings",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "settings-button",
+            "text": "Reading setup",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "change-file",
+            "text": "Open another",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "confidence-toggle",
+            "text": "!High confidenceExtraction estimate · check agains",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "previous-block",
+            "text": "Previous ↑",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "next-block",
+            "text": "Next ↓",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "text": "Privacy",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "text": "Terms",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BODY",
+            "id": "",
+            "text": "Skip to reader PDF FLOW READER ● Local only DemoPr",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "text": "Skip to reader",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "text": "PDF FLOW READER",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "text": "Demo",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "data-button",
+            "text": "Manage local data",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "reset-demo",
+            "text": "Reset demo",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "start-real",
+            "text": "Start for real",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "outline-button",
+            "text": "Headings",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "settings-button",
+            "text": "Reading setup",
+            "hiddenPanel": false
+          },
+          {
+            "tag": "BUTTON",
+            "id": "change-file",
+            "text": "Open another",
+            "hiddenPanel": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "live: service worker controlled offline demo reload",
+      "status": "PASS",
+      "durationMs": 1168,
+      "evidence": {
+        "before": {
+          "controlled": true,
+          "caches": [
+            "pdf-flow-reader-a271f7ea36a4"
+          ],
+          "registrations": 1
+        },
+        "after": {
+          "title": "Demo — PDF Flow Reader",
+          "sample": true,
+          "offlineBanner": true
+        }
+      }
+    },
+    {
+      "name": "local: invalid, encrypted, storage and import recovery paths",
+      "status": "PASS",
+      "durationMs": 3219,
+      "evidence": {
+        "wrongType": "Couldn’t open that PDF.Choose a file ending in .pdf.Try another file",
+        "malformed": "Couldn’t open that PDF.This file is not a valid or supported PDF.Try another file",
+        "scan": "Couldn’t open that PDF.No selectable text was found. This may be a scanned PDF; cloud OCR is intentionally not used.Try another file",
+        "wrongPassword": "That password did not open the PDF.",
+        "storedKeys": [
+          "blocks",
+          "confidence",
+          "confidenceNotes",
+          "createdAt",
+          "currentBlock",
+          "id",
+          "name",
+          "pageCount",
+          "settings",
+          "updatedAt"
+        ],
+        "passwordField": "",
+        "importError": "Expected property name or '}' in JSON at position 2 (line 1 column 3)"
+      }
+    },
+    {
+      "name": "local: oversized boundary is rejected before extraction",
+      "status": "PASS",
+      "durationMs": 501,
+      "evidence": {
+        "alert": "Couldn’t open that PDF.That file is over the 100 MB local processing limit.Try another file"
+      }
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "url": "http://127.0.0.1:4181",
+  "initial": {
+    "controller": "http://127.0.0.1:4181/sw.js",
+    "caches": [
+      "pdf-flow-reader-a271f7ea36a4"
+    ]
+  },
+  "update": {
+    "controller": "http://127.0.0.1:4181/sw.js",
+    "caches": [
+      "pdf-flow-reader-a271f7ea36a4",
+      "pdf-flow-reader-qa-update"
+    ],
+    "toastVisibleNow": true,
+    "toastObserved": true,
+    "afterReloadCaches": [
+      "pdf-flow-reader-qa-update"
+    ]
+  },
+  "offline": {
+    "sample": true,
+    "offlineBanner": true
+  }
+}

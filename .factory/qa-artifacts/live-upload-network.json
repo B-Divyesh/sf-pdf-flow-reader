@@ -1,0 +1,61 @@
+{
+  "requests": [
+    {
+      "url": "https://pdf-flow-reader.sociobot.in/",
+      "method": "GET",
+      "postData": null,
+      "type": "document"
+    },
+    {
+      "url": "https://pdf-flow-reader.sociobot.in/assets/style-Ciou-HfS.js",
+      "method": "GET",
+      "postData": null,
+      "type": "script"
+    },
+    {
+      "url": "https://pdf-flow-reader.sociobot.in/assets/main-DGN0bSZM.js",
+      "method": "GET",
+      "postData": null,
+      "type": "script"
+    },
+    {
+      "url": "https://pdf-flow-reader.sociobot.in/assets/style-BBGwla8d.css",
+      "method": "GET",
+      "postData": null,
+      "type": "stylesheet"
+    },
+    {
+      "url": "https://pdf-flow-reader.sociobot.in/assets/icon.svg",
+      "method": "GET",
+      "postData": null,
+      "type": "image"
+    },
+    {
+      "url": "https://pdf-flow-reader.sociobot.in/assets/reflow-gate-720.avif",
+      "method": "GET",
+      "postData": null,
+      "type": "image"
+    },
+    {
+      "url": "https://pdf-flow-reader.sociobot.in/assets/pdf-Cv4ISMMC.js",
+      "method": "GET",
+      "postData": null,
+      "type": "script"
+    },
+    {
+      "url": "https://pdf-flow-reader.sociobot.in/assets/pdf.worker.min-r-TJsTTt.mjs",
+      "method": "GET",
+      "postData": null,
+      "type": "script"
+    },
+    {
+      "url": "https://pdf-flow-reader.sociobot.in/assets/icon.svg",
+      "method": "GET",
+      "postData": null,
+      "type": "image"
+    }
+  ],
+  "external": [],
+  "writes": [],
+  "text": "PRIVATE LOCAL PDF This representative file stays in this browser."
+}
