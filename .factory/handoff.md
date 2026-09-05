@@ -8,7 +8,7 @@ Complete. The three minor findings from `.factory/review-3.md` are closed. The d
 - Demo: <https://pdf-flow-reader.sociobot.in/?demo=1>
 - Implementation candidate and deployed runtime: `14802df8a1d75b59306898cf9f8624177d3cde4f`
 - Azure Static Web Apps deployment: `d08b02b2-2a3d-46e3-a589-f608fc6a1a07` — succeeded.
-- Documentation/evidence SHA: recorded in the following report-only commit. It does not change the deployed runtime.
+- Documentation/evidence SHA: `c19a69a258f711241cfde453b42f89fb4ae51335` (report-only; it does not change the deployed runtime).
 
 ## What changed
 
