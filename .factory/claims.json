@@ -4,7 +4,7 @@
     "claim": "Try it with sample data",
     "where": "landing primary action, Demo route, README",
     "test": "npx playwright test --grep @claim:demo-sample",
-    "sandbox": "fresh browser context; click the first-screen action once, land on /?demo=1, and assert the bundled sample is extracted with the persistent demo banner and isolated storage"
+    "sandbox": "fresh browser context; seed one regular-library document, click the first-screen action once, land on /?demo=1, and assert the bundled sample, persistent banner, Reset, Start for real, demo namespace, and unchanged regular library"
   },
   {
     "id": "private-local",

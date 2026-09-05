@@ -29,6 +29,18 @@ async function openGeneratedPdf(page: import('@playwright/test').Page) {
   await expect(page.getByRole('article', { name: 'Reflowed document' })).toContainText('FOCUS AND FLOW', { timeout: 15_000 });
 }
 
+async function storedDocuments(page: import('@playwright/test').Page, databaseName: string) {
+  return page.evaluate(async (name) => new Promise<unknown[]>((resolve, reject) => {
+    const request = indexedDB.open(name);
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const documents = request.result.transaction('documents').objectStore('documents').getAll();
+      documents.onerror = () => reject(documents.error);
+      documents.onsuccess = () => { request.result.close(); resolve(documents.result); };
+    };
+  }), databaseName);
+}
+
 test('empty state is accessible and fits the viewport', async ({ page }) => {
   const consoleErrors: string[] = [];
   page.on('console', (message) => { if (message.type() === 'error') consoleErrors.push(message.text()); });
@@ -44,6 +56,23 @@ test('empty state is accessible and fits the viewport', async ({ page }) => {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
   expect(overflow).toBe(false);
   expect(consoleErrors).toEqual([]);
+});
+
+test('landing steps name the text check and reading adjustments in plain words', async ({ page }, testInfo) => {
+  await page.goto('/');
+  const steps = page.locator('.how-it-works');
+  await expect(steps.getByRole('heading', { level: 3 })).toHaveText([
+    'Open locally',
+    'Check the text order',
+    'Adjust the reading view'
+  ]);
+  await expect(steps).toContainText('Set text size, spacing, line width, and contrast.');
+
+  await page.getByRole('button', { name: 'Try it with sample data' }).click();
+  await expect(page.getByRole('article', { name: 'Reflowed document' })).toBeVisible({ timeout: 15_000 });
+  if (testInfo.project.name === 'mobile') await page.getByRole('button', { name: 'Reading setup' }).click();
+  await expect(page.locator('label[for="measure-range"]')).toBeVisible();
+  await expect(page.locator('label[for="measure-range"]')).toContainText('Line width');
 });
 
 test('@claim:resume-place extracts a PDF, adjusts reading, and resumes its reading place', async ({ page }) => {
@@ -85,7 +114,11 @@ test('@claim:offline-reload app shell reloads offline after first visit', async 
 });
 
 test('@claim:demo-sample opens the bundled sample in an isolated demo library', async ({ page }) => {
-  await page.goto('/');
+  await openGeneratedPdf(page);
+  await page.getByRole('button', { name: 'Open another' }).click();
+  const realLibraryBeforeDemo = await storedDocuments(page, 'pdf-flow-reader');
+  expect(realLibraryBeforeDemo).toHaveLength(1);
+
   await page.getByRole('button', { name: 'Try it with sample data' }).click();
   await expect(page).toHaveURL(/\?demo=1$/);
   await expect(page.getByLabel('Demo controls')).toContainText('Demo — sample data');
@@ -94,12 +127,13 @@ test('@claim:demo-sample opens the bundled sample in an isolated demo library', 
   await expect(page.getByRole('button', { name: 'Start for real' })).toBeVisible();
   const names = await page.evaluate(async () => (await indexedDB.databases()).map((database) => database.name));
   expect(names).toContain('demo:pdf-flow-reader');
-  expect(names).not.toContain('pdf-flow-reader');
+  expect(names).toContain('pdf-flow-reader');
   await page.getByRole('button', { name: 'Reset demo' }).click();
   await expect(page.getByRole('article', { name: 'Reflowed document' })).toContainText('QUIET READING ROUTINE', { timeout: 15_000 });
   await page.getByRole('button', { name: 'Start for real' }).click();
   await expect(page).toHaveURL(/\/$/);
-  await expect(page.getByRole('button', { name: 'Try it with sample data' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Resume reading' })).toBeVisible();
+  await expect.poll(() => storedDocuments(page, 'pdf-flow-reader')).toEqual(realLibraryBeforeDemo);
 });
 
 test('@claim:extraction-boundary creates a reading column without changing or certifying the source PDF', async ({ page }) => {

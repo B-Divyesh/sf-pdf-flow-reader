@@ -65,7 +65,7 @@ function homeView(error = '') {
         <figcaption><span aria-hidden="true">↳</span> We place extracted text in one reading column. We never alter or certify the source PDF.</figcaption>
       </figure>
     </section>${resume}
-    <section class="how-it-works" aria-labelledby="how-title"><p class="eyebrow">What happens here</p><h2 id="how-title">How PDF Flow Reader reads your PDF locally</h2><ol><li><span>1</span><h3>Open locally</h3><p>Your browser reads the file. It never travels to a server.</p></li><li><span>2</span><h3>Inspect the flow</h3><p>We show a confidence note. Check the source PDF when meaning matters.</p></li><li><span>3</span><h3>Read your way</h3><p>Set size, spacing, measure, and contrast. Return to the same reading place.</p></li></ol></section>
+    <section class="how-it-works" aria-labelledby="how-title"><p class="eyebrow">What happens here</p><h2 id="how-title">How PDF Flow Reader reads your PDF locally</h2><ol><li><span>1</span><h3>Open locally</h3><p>Your browser reads the file. It never travels to a server.</p></li><li><span>2</span><h3>Check the text order</h3><p>We show a confidence note. Check the source PDF when meaning matters.</p></li><li><span>3</span><h3>Adjust the reading view</h3><p>Set text size, spacing, line width, and contrast. Return to the same reading place.</p></li></ol></section>
   </main>`);
   bindHome();
 }
